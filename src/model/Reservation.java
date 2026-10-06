@@ -9,10 +9,10 @@ public class Reservation {
 
     public Reservation() {
         // Seed data — replace with data loaded from US-1 space list view
-        spaces.add(new Space("Conference Room A", 8));
-        spaces.add(new Space("Auditorium", 120));
-        spaces.add(new Space("Huddle Room B", 4));
-        spaces.add(new Space("Training Hall", 30));
+        spaces.add(new Space(1001,"Conference Room A","Nevins Hall" , 8));
+        spaces.add(new Space(2001,"Auditorium", "Student Union",120));
+        spaces.add(new Space(3001,"Huddle Room B","Soccer Complex", 4));
+        spaces.add(new Space(6001,"Training Hall","Athletic Complex", 30));
     }
 
     /**
@@ -49,25 +49,6 @@ public class Reservation {
             throw new IllegalArgumentException("Capacity must be greater than 0.");
         }
         return value;
-    }
-
-    /** Simple space model (align with your US-1 Space class). */
-    public static class Space {
-        private final String name;
-        private final int capacity;
-
-        public Space(String name, int capacity) {
-            this.name = name;
-            this.capacity = capacity;
-        }
-
-        public String getName() { return name; }
-        public int getCapacity() { return capacity; }
-
-        @Override
-        public String toString() {
-            return name + " (capacity: " + capacity + ")";
-        }
     }
 
     /** Demo / manual smoke test for the three acceptance criteria. */
