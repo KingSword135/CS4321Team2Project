@@ -1,10 +1,9 @@
 package persistence;
 
 import model.Space;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+
+import java.util.*;
+
 import persistence.SpaceRepository;
 
 public class InMemorySpaceRepository implements SpaceRepository {
@@ -17,9 +16,9 @@ public class InMemorySpaceRepository implements SpaceRepository {
 
     @Override
     public List<Space> getAllSpaces() {
-        ArrayList<Space> sorted_spaces = (ArrayList<Space>)spaces;
         Comparator<Space> comparator = Comparator.comparing(Space::getName);
-        return sorted_spaces;
+        Collections.sort(spaces, comparator);
+        return (List<Space>) comparator;
     }
 
 }
