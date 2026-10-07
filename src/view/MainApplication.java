@@ -19,7 +19,7 @@ public class MainApplication extends Application {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("SpaceListView.fxml"));
 
-        stage.setTitle("Space Reservation Application");
+        stage.setTitle("Space/Reservation Application");
         Group root = new Group();
         root.getChildren().add(loader.load());
         Scene scene = new Scene(root, 1280, 720);
