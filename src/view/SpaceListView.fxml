@@ -11,11 +11,11 @@
             fx:controller="controller.SpaceListController"
             prefHeight="400.0" prefWidth="600.0">
     <Label text="Spaces" layoutX="50" layoutY="30"> </Label>
-    <TableView fx:id="ViewTable" VBox.vgrow="ALWAYS" editable="false" layoutX="50" layoutY="50">
+    <TableView fx:id="SpaceTable" VBox.vgrow="ALWAYS" editable="false" layoutX="50" layoutY="50" >
         <columns>
-            <TableColumn fx:id="NameColumn" text="Name"> </TableColumn>
-            <TableColumn fx:id="BuildingColumn" text="Building"> </TableColumn>
-            <TableColumn fx:id="CapacityColumn" text="Capacity"> </TableColumn>
+            <TableColumn fx:id="NameColumn" text="Name" prefWidth="200"> </TableColumn>
+            <TableColumn fx:id="BuildingColumn" text="Building" prefWidth="200"> </TableColumn>
+            <TableColumn fx:id="CapacityColumn" text="Capacity" prefWidth="200"> </TableColumn>
 
         </columns>
     </TableView>

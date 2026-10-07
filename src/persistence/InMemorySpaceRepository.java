@@ -18,7 +18,7 @@ public class InMemorySpaceRepository implements SpaceRepository {
     public List<Space> getAllSpaces() {
         Comparator<Space> comparator = Comparator.comparing(Space::getName);
         Collections.sort(spaces, comparator);
-        return (List<Space>) comparator;
+        return spaces;
     }
 
 }

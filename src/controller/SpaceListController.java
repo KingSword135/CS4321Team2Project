@@ -39,9 +39,9 @@ public class SpaceListController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        NameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        BuildingColumn.setCellValueFactory(new PropertyValueFactory<>("building"));
-        CapacityColumn.setCellValueFactory(new PropertyValueFactory<>("capacity"));
+        NameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
+        BuildingColumn.setCellValueFactory(new PropertyValueFactory<>("Building"));
+        CapacityColumn.setCellValueFactory(new PropertyValueFactory<>("Capacity"));
         SpaceTable.setItems(spaces);
     }
 
@@ -51,6 +51,13 @@ public class SpaceListController implements Initializable {
 
     public Space getSelectedSpace() {
         return SpaceTable.getSelectionModel().getSelectedItem();
+    }
+
+    public void loadSpaces() {
+        if (spaceRepository == null) {
+            throw new IllegalStateException("Space repository has not been set");
+        }
+        spaces.setAll(spaceRepository.getAllSpaces());
     }
 
 }
