@@ -1,4 +1,4 @@
-package service;
+package controller;
 
 import model.Space;
 import persistence.SpaceRepository;
@@ -11,11 +11,11 @@ import java.util.List;
  * The controller calls this service; the service pulls spaces from
  * the repository and returns filtered results for the US-1 list view.
  */
-public class SpaceFilterService {
+public class SpaceFilterController {
 
     private final SpaceRepository repository;
 
-    public SpaceFilterService(SpaceRepository repository) {
+    public SpaceFilterController(SpaceRepository repository) {
         this.repository = repository;
     }
 
