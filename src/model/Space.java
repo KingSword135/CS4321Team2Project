@@ -69,4 +69,19 @@ public class Space {
                 + ", Capacity: " + getCapacity()
                 + ", Features: " + getFeatures();
     }
+
+    public static void main(String[] args) {
+        Space room1 = new Space(1, "Study Room", "Odum Library", 6, List.of("Whiteboard"));
+        Space room2 = new Space(2, "Study Nook", "Odum Library", 4, List.of("Whiteboard"));
+        Space room3 = new Space(3, "Computer Lab", "Nevins", 25, List.of("Whiteboard", "Projector", "Lab Computers"));
+        Space room4 = new Space(4, "Science Lab", "Bailey", 30, List.of("Whiteboard", "Projector", "Science Equipment"));
+        Space room5 = new Space(5, "Classroom 1234", "Nevins", 25, List.of("Whiteboard", "Projector"));
+
+        System.out.println(room1);
+        System.out.println(room2);
+        System.out.println(room3);
+        System.out.println(room4);
+        System.out.println(room5);
+
+    }
 }
