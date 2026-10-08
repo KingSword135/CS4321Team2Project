@@ -1,0 +1,1 @@
+WARNING! DO NOT PUSH CODE DIRECTLY TO MAIN. Instead, create a branch off main (or whatever branch of your choosing), make changes, and commit them. Once you feel the code is ready, do a pull request with someone else to get it merged to main.
