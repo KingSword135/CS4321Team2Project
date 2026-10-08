@@ -6,10 +6,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<Pane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="controller.SpaceListController"
             prefHeight="400.0" prefWidth="600.0">
-    <TableView> </TableView>
+    <Label text="Spaces" layoutX="50" layoutY="30"> </Label>
+    <TableView fx:id="SpaceTable" VBox.vgrow="ALWAYS" editable="false" layoutX="50" layoutY="50" >
+        <columns>
+            <TableColumn fx:id="NameColumn" text="Name" prefWidth="200"> </TableColumn>
+            <TableColumn fx:id="BuildingColumn" text="Building" prefWidth="200"> </TableColumn>
+            <TableColumn fx:id="CapacityColumn" text="Capacity" prefWidth="200"> </TableColumn>
 
-</AnchorPane>
+        </columns>
+    </TableView>
+
+</Pane>
