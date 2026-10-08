@@ -5,20 +5,21 @@ import java.util.Objects;
 
 public class Space {
 
-    int id;
-    String name;
-    String building;
-    int capacity;
-    List<String> features;
+    private int id;
+    private String name;
+    private String building;
+    private int capacity;
+    private List<String> features;
 
     public Space(int id, String name, String building, int capacity) {
         this(id, name, building, capacity, List.of());
     }
 
-    public Space(int id,  String name, String building, int capacity, List<String> features) {
+    public Space(int id, String name, String building, int capacity, List<String> features) {
         if (id < 0 || name.isEmpty() || building.isEmpty() || capacity <= 0) {
-            return;
+            throw new IllegalArgumentException("Invalid space information");
         }
+
         this.id = id;
         this.name = name;
         this.building = building;
@@ -29,6 +30,7 @@ public class Space {
     public int getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
@@ -47,11 +49,24 @@ public class Space {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Space)) {
+            return false;
+        }
+
         Space s = (Space) o;
-        return Objects.equals(id, s.id);
+        return id == s.id;
     }
 
+    @Override
     public String toString() {
-        return "ID: " + getId() + ", Name: " + getName() + ", Building: " + getBuilding() + ", Capacity: " + getCapacity() + ", Features: " + getFeatures();
+        return "ID: " + getId()
+                + ", Name: " + getName()
+                + ", Building: " + getBuilding()
+                + ", Capacity: " + getCapacity()
+                + ", Features: " + getFeatures();
     }
 }
