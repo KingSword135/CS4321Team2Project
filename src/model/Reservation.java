@@ -2,7 +2,8 @@ package model;
 
 import java.sql.Date;
 import java.time.LocalTime;
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Reservation {
@@ -43,10 +44,6 @@ public class Reservation {
             throw new IllegalArgumentException("Duration cannot be greater than 2 hours.");
         }   
     }
-import java.util.ArrayList;
-import java.util.List;
-
-public class Reservation {
 
     private final List<Space> spaces = new ArrayList<>();
 
@@ -94,6 +91,30 @@ public class Reservation {
         return value;
     }
 
+    public int getSpaceId() {
+        return spaceId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void modify(Date newDate, LocalTime newStartTime, LocalTime newEndTime) {
+
+    }
+
+    public Object getDate() {
+        return date;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
     /** Demo / manual smoke test for the three acceptance criteria. */
     public static void main(String[] args) {
         Reservation app = new Reservation();
@@ -114,4 +135,7 @@ public class Reservation {
             System.out.println("Validation error: " + e.getMessage()); // AC-3
         }
     }
+
+
+
 }
