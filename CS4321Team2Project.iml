@@ -76,5 +76,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="jackson dependencies" level="project" />
   </component>
 </module>

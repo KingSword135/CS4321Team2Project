@@ -1,6 +1,6 @@
 package model;
 
-import java.sql.Date;
+import java.util.Date;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,6 +113,15 @@ public class Reservation {
 
     public LocalTime getStartTime() {
         return startTime;
+    }
+
+    public String toString() {
+        String msg = "ID: " + getId()
+                + " Space ID: " + getSpaceId()
+                + " Date: " + getDate()
+                + " Start Time: " + getStartTime()
+                + " End Time: " + getEndTime();
+        return msg;
     }
 
     /** Demo / manual smoke test for the three acceptance criteria. */
