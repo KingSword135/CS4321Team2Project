@@ -11,6 +11,10 @@ public class Space {
     private int capacity;
     private List<String> features;
 
+    public Space() {
+
+    }
+
     public Space(int id, String name, String building, int capacity) {
         this(id, name, building, capacity, List.of());
     }

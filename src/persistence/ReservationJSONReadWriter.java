@@ -55,9 +55,9 @@ public class ReservationJSONReadWriter {
 
         ReservationJSONReadWriter reservationJSONReadWriter = new ReservationJSONReadWriter();
         ArrayList<Reservation> reservations = new ArrayList<>();
-        Date date = new Date();
-        LocalTime startTime = LocalTime.now();
-        LocalTime endTime = LocalTime.now().plusHours(1);
+        Date date = new Date(2026, 11, 21);
+        LocalTime startTime = LocalTime.of(10,30);
+        LocalTime endTime = LocalTime.NOON;
         Reservation re1 = new Reservation(1,4,date, startTime,endTime);
         reservations.add(re1);
         reservationJSONReadWriter.WriteToFile(reservations);
