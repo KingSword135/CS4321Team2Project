@@ -5,6 +5,7 @@ import controller.SpaceListController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -33,6 +34,7 @@ public class MainApplication extends Application {
     SpaceRepository spaceRepository;
     DataLoader loader = new DataLoader();
     FXMLLoader fxmlLoader = new FXMLLoader();
+    SpaceListController controller1;
 
     Label label = new Label("Valdosta Space & Reservation Application");
     Label label2 = new Label("Spaces");
@@ -78,7 +80,9 @@ public class MainApplication extends Application {
         topHbox.setPrefHeight(80);
         topHbox.getChildren().add(label);
         topHbox.getChildren().add(label3);
-        label3.setPrefWidth(250);
+        spaceFeatures.setAlignment(Pos.CENTER);
+        spaceFeatures.setEditable(false);
+        spaceFeatures.setPrefWidth(400);
         topHbox.getChildren().add(spaceFeatures);
         topHbox.getStyleClass().add ("topHbox");
         return topHbox;
@@ -89,13 +93,9 @@ public class MainApplication extends Application {
         spaceRepository = new InMemorySpaceRepository(spaces);
         fxmlLoader.setLocation(getClass().getResource("SpaceListView.fxml"));
         VBox pane1 = fxmlLoader.load();
-        SpaceListController controller = fxmlLoader.getController();
-        controller.setSpaceRepository(spaceRepository);
-        controller.loadSpaces();
-        Space s = controller.getSelectedSpace();
-        if (s != null) {
-            spaceFeatures.setText(s.toString());
-        }
+        controller1 = fxmlLoader.getController();
+        controller1.setSpaceRepository(spaceRepository);
+        controller1.loadSpaces();
         return pane1;
     }
 
@@ -144,7 +144,7 @@ public class MainApplication extends Application {
 
         @Override
         public void handle(ActionEvent actionEvent) {
-
+            spaceFeatures.setText(controller1.getSelectedSpace().spaceDetails());
         }
     }
 

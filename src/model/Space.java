@@ -65,6 +65,13 @@ public class Space {
         return id == s.id;
     }
 
+    public String spaceDetails() {
+        return "Name: " + getName() +
+                ", Building: " + getBuilding() +
+                ", Capacity: " + getCapacity() +
+                ", Features: " + getFeatures();
+    }
+
     @Override
     public String toString() {
         return "ID: " + getId()

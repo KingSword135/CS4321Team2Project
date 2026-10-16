@@ -44,11 +44,11 @@ public class SpaceListController implements Initializable {
         CapacityColumn.setCellValueFactory(new PropertyValueFactory<>("Capacity"));
         SpaceTable.setItems(spaces);
 
-        SpaceTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, Space) -> {
-            if (Space != null) {
-                spaceFeatures.setText(getSelectedSpace().toString());
-            }
-        });
+//        SpaceTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, Space) -> {
+//            if (Space != null) {
+//                spaceFeatures.setText(getSelectedSpace().toString());
+//            }
+//        });
 
     }
 
