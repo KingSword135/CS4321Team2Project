@@ -1,20 +1,21 @@
 package model;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalTime;
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Reservation {
 
     public int id;
     public int spaceId;
-    public Date date;
+    public LocalDate date;
     // Store as a LocalTime object
     public LocalTime startTime;
     public LocalTime endTime;
 
-    public Reservation(int id, int spaceId, Date date, LocalTime startTime, LocalTime endTime){
+    public Reservation(int id, int spaceId, LocalDate date, LocalTime startTime, LocalTime endTime){
         this.id = id;
         this.spaceId = spaceId;
         this.date = date;
@@ -43,19 +44,15 @@ public class Reservation {
             throw new IllegalArgumentException("Duration cannot be greater than 2 hours.");
         }   
     }
-import java.util.ArrayList;
-import java.util.List;
-
-public class Reservation {
 
     private final List<Space> spaces = new ArrayList<>();
 
     public Reservation() {
         // Seed data — replace with data loaded from US-1 space list view
-        spaces.add(new Space(1001,"Conference Room A","Nevins Hall" , 8));
-        spaces.add(new Space(2001,"Auditorium", "Student Union",120));
-        spaces.add(new Space(3001,"Huddle Room B","Soccer Complex", 4));
-        spaces.add(new Space(6001,"Training Hall","Athletic Complex", 30));
+//        spaces.add(new Space(1001,"Conference Room A","Nevins Hall" , 8));
+//        spaces.add(new Space(2001,"Auditorium", "Student Union",120));
+//        spaces.add(new Space(3001,"Huddle Room B","Soccer Complex", 4));
+//        spaces.add(new Space(6001,"Training Hall","Athletic Complex", 30));
     }
 
     /**
@@ -94,6 +91,39 @@ public class Reservation {
         return value;
     }
 
+    public int getSpaceId() {
+        return spaceId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void modify(LocalDate newDate, LocalTime newStartTime, LocalTime newEndTime) {
+
+    }
+
+    public Object getDate() {
+        return date;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public String toString() {
+        String msg = "ID: " + getId()
+                + " Space ID: " + getSpaceId()
+                + " Date: " + getDate()
+                + " Start Time: " + getStartTime()
+                + " End Time: " + getEndTime();
+        return msg;
+    }
+
     /** Demo / manual smoke test for the three acceptance criteria. */
     public static void main(String[] args) {
         Reservation app = new Reservation();
@@ -114,4 +144,7 @@ public class Reservation {
             System.out.println("Validation error: " + e.getMessage()); // AC-3
         }
     }
+
+
+
 }

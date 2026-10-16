@@ -1,0 +1,25 @@
+[ {
+  "id" : 1001,
+  "name" : "Conference Room A",
+  "building" : "Nevins Hall",
+  "capacity" : 8,
+  "features" : []
+}, {
+  "id" : 2001,
+  "name" : "Auditorium",
+  "building" : "Student Union",
+  "capacity" : 120,
+  "features" : []
+}, {
+  "id" : 3001,
+  "name" : "Huddle Room B",
+  "building" : "Soccer Complex",
+  "capacity" : 4,
+  "features" : ["Whiteboard"]
+}, {
+  "id" : 4001,
+  "name" : "Training Hall",
+  "building" : "Athletic Complex",
+  "capacity" : 30,
+  "features" : []
+} ]
