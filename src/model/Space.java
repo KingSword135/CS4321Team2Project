@@ -66,10 +66,16 @@ public class Space {
     }
 
     public String spaceDetails() {
-        return "Name: " + getName() +
+        String msg = "Name: " + getName() +
                 ", Building: " + getBuilding() +
-                ", Capacity: " + getCapacity() +
-                ", Features: " + getFeatures();
+                ", Capacity: " + getCapacity();
+        if (features != null && !features.isEmpty()) {
+            msg += ", Features: " + String.join(", ", features);
+        }
+        else {
+            msg += ", No features available";
+        }
+        return msg;
     }
 
     @Override
