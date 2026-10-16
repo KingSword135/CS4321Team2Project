@@ -1,4 +1,3 @@
-```java
 package test;
 
 import model.Reservation;
@@ -106,4 +105,3 @@ class ReservationTest {
         );
     }
 }
-```
