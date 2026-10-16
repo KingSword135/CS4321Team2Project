@@ -4,7 +4,7 @@ import model.Reservation;
 import model.ReservationManager;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,14 +16,14 @@ class ReservationTest {
         Reservation reservation = new Reservation(
                 1,
                 1001,
-                Date.valueOf("2026-10-20"),
+                LocalDate.of(2026,10,20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
 
         assertEquals(1, reservation.getId());
         assertEquals(1001, reservation.getSpaceId());
-        assertEquals(Date.valueOf("2026-10-20"), reservation.getDate());
+        assertEquals(LocalDate.of(2026,10,20)   , reservation.getDate());
         assertEquals(LocalTime.of(10, 0), reservation.getStartTime());
         assertEquals(LocalTime.of(11, 0), reservation.getEndTime());
     }
@@ -34,7 +34,7 @@ class ReservationTest {
 
         Reservation reservation = manager.createReservation(
                 1001,
-                Date.valueOf("2026-10-20"),
+                LocalDate.of(2026,10,20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
@@ -49,7 +49,7 @@ class ReservationTest {
 
         Reservation reservation = manager.createReservation(
                 1001,
-                Date.valueOf("2026-10-20"),
+                LocalDate.of(2026,10,20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
@@ -65,12 +65,12 @@ class ReservationTest {
 
         Reservation reservation = manager.createReservation(
                 1001,
-                Date.valueOf("2026-10-20"),
+                LocalDate.of(2026,10,20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
 
-        Date newDate = Date.valueOf("2026-10-21");
+        LocalDate newDate = LocalDate.of(2026,10,21);
 
         manager.modifyReservation(
                 reservation.getId(),
@@ -90,7 +90,7 @@ class ReservationTest {
 
         manager.createReservation(
                 1001,
-                Date.valueOf("2026-10-20"),
+                LocalDate.of(2026,10,20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
@@ -98,7 +98,7 @@ class ReservationTest {
         assertThrows(IllegalArgumentException.class, () ->
                 manager.createReservation(
                         1001,
-                        Date.valueOf("2026-10-20"),
+                        LocalDate.of(2026,10,20),
                         LocalTime.of(10, 30),
                         LocalTime.of(11, 30)
                 )

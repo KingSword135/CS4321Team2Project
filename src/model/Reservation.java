@@ -100,7 +100,9 @@ public class Reservation {
     }
 
     public void modify(LocalDate newDate, LocalTime newStartTime, LocalTime newEndTime) {
-
+        this.date = newDate;
+        this.startTime = newStartTime;
+        this.endTime = newEndTime;
     }
 
     public Object getDate() {
