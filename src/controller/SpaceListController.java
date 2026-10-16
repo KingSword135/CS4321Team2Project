@@ -4,10 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.Space;
 import persistence.SpaceRepository;
@@ -31,6 +28,9 @@ public class SpaceListController implements Initializable {
     @FXML
     private Label EmptyStateLabel;
 
+    @FXML
+    private TextField spaceFeatures;
+
     private SpaceRepository spaceRepository;
 
     public SpaceListController() {
@@ -43,6 +43,13 @@ public class SpaceListController implements Initializable {
         BuildingColumn.setCellValueFactory(new PropertyValueFactory<>("Building"));
         CapacityColumn.setCellValueFactory(new PropertyValueFactory<>("Capacity"));
         SpaceTable.setItems(spaces);
+
+        SpaceTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, Space) -> {
+            if (Space != null) {
+                spaceFeatures.setText(getSelectedSpace().toString());
+            }
+        });
+
     }
 
     public void setSpaceRepository(SpaceRepository spaceRepository) {
@@ -60,4 +67,7 @@ public class SpaceListController implements Initializable {
         spaces.setAll(spaceRepository.getAllSpaces());
     }
 
+    public SpaceRepository getSpaceRepository() {
+        return spaceRepository;
+    }
 }

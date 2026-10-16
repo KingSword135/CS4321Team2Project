@@ -19,6 +19,13 @@ public class Reservation {
         this.id = id;
         this.spaceId = spaceId;
         this.date = date;
+
+        if (date.isBefore(LocalDate.now())){
+            throw new IllegalArgumentException("Date cannot be in the past");
+        }
+        else if (date.isAfter(LocalDate.now().plusDays(7))){
+            throw new IllegalArgumentException("Date cannot be more than 7 days in the future");
+        }
         // "Is startTime before 8:00am?"
         if(startTime.isBefore(LocalTime.of(8, 0))){
             throw new IllegalArgumentException("Start time cannot be before 8:00am");
