@@ -2,6 +2,7 @@ package persistence;
 
 import model.Space;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +29,12 @@ public class DataLoader {
 //        return list;
 //    }
 
-    public List<Space> loadSpaces() {
-        return null;
+    public List<Space> loadSpaces() throws IOException {
+        SpaceJSONReadWriter reader = new SpaceJSONReadWriter();
+        return reader.readSpaces();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         DataLoader loader = new DataLoader();
         loader.loadSpaces();
     }

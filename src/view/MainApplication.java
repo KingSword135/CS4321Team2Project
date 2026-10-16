@@ -22,6 +22,8 @@ import java.util.List;
 
 public class MainApplication extends Application {
 
+    Button addReservation = new Button("Add Reservation");
+
     public void start(Stage stage) throws Exception {
 
         SpaceRepository spaceRepository;
@@ -42,6 +44,12 @@ public class MainApplication extends Application {
         scene.getStylesheets().add(getClass().getResource("stylization.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
+    }
+
+    private Pane buildPane() {
+        BorderPane pane = new BorderPane();
+        pane.setTop(addReservation);
+        return pane;
     }
 
     public static void main(String[] args) {

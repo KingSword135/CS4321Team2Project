@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import model.Space;
 
-public class SpaceJSONReader {
+public class SpaceJSONReadWriter {
 
-    SpaceJSONReader() {
+    SpaceJSONReadWriter() {
 
     }
 
@@ -29,16 +29,16 @@ public class SpaceJSONReader {
         }
     }
 
-    public void readSpaces() throws IOException {
+    public List<Space> readSpaces() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         File file = new File("src/persistence/spaces.json");
         List<Space> spaces = mapper.readValue(file, new TypeReference<>() {});
-        System.out.println(spaces);
+        return spaces;
     }
 
     public static void main(String[] args) throws IOException {
-        SpaceJSONReader reader = new SpaceJSONReader();
+        SpaceJSONReadWriter reader = new SpaceJSONReadWriter();
         List<Space> spaces = new ArrayList<>();
         spaces.add(new Space(1001,"Conference Room A","Nevins Hall" , 8));
         spaces.add(new Space(2001,"Auditorium", "Student Union",120));

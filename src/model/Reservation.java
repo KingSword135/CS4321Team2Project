@@ -49,10 +49,10 @@ public class Reservation {
 
     public Reservation() {
         // Seed data — replace with data loaded from US-1 space list view
-        spaces.add(new Space(1001,"Conference Room A","Nevins Hall" , 8));
-        spaces.add(new Space(2001,"Auditorium", "Student Union",120));
-        spaces.add(new Space(3001,"Huddle Room B","Soccer Complex", 4));
-        spaces.add(new Space(6001,"Training Hall","Athletic Complex", 30));
+//        spaces.add(new Space(1001,"Conference Room A","Nevins Hall" , 8));
+//        spaces.add(new Space(2001,"Auditorium", "Student Union",120));
+//        spaces.add(new Space(3001,"Huddle Room B","Soccer Complex", 4));
+//        spaces.add(new Space(6001,"Training Hall","Athletic Complex", 30));
     }
 
     /**

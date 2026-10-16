@@ -15,7 +15,7 @@
   "name" : "Huddle Room B",
   "building" : "Soccer Complex",
   "capacity" : 4,
-  "features" : []
+  "features" : ["Whiteboard"]
 }, {
   "id" : 4001,
   "name" : "Training Hall",
