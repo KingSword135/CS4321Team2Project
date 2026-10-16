@@ -1,6 +1,6 @@
 package model;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class ReservationManager {
     }
 
     // US-5: Create a reservation
-    public Reservation createReservation(int spaceId, Date date, LocalTime startTime, LocalTime endTime) {
+    public Reservation createReservation(int spaceId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         if (!isTimeAvailable(spaceId, date, startTime, endTime)) {
             throw new IllegalArgumentException("The selected time is not available.");
         }
@@ -40,7 +40,7 @@ public class ReservationManager {
     }
 
     // US-11: Modify a reservation
-    public void modifyReservation(int reservationId, Date newDate, LocalTime newStartTime, LocalTime newEndTime) {
+    public void modifyReservation(int reservationId, LocalDate newDate, LocalTime newStartTime, LocalTime newEndTime) {
         Reservation reservation = findReservation(reservationId);
 
         if (reservation == null) {
@@ -64,11 +64,11 @@ public class ReservationManager {
         return null;
     }
 
-    private boolean isTimeAvailable(int spaceId, Date date, LocalTime startTime, LocalTime endTime) {
+    private boolean isTimeAvailable(int spaceId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         return isTimeAvailable(spaceId, date, startTime, endTime, -1);
     }
 
-    private boolean isTimeAvailable(int spaceId, Date date, LocalTime startTime, LocalTime endTime,
+    private boolean isTimeAvailable(int spaceId, LocalDate date, LocalTime startTime, LocalTime endTime,
                                     int ignoredReservationId) {
         for (Reservation reservation : reservations) {
             if (reservation.getId() == ignoredReservationId) {

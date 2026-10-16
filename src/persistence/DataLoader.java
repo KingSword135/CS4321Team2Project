@@ -1,6 +1,7 @@
 package persistence;
 
 import model.Space;
+import model.Reservation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +33,11 @@ public class DataLoader {
     public List<Space> loadSpaces() throws IOException {
         SpaceJSONReadWriter reader = new SpaceJSONReadWriter();
         return reader.readSpaces();
+    }
+
+    public List<Reservation> loadReservations() throws IOException {
+        ReservationJSONReadWriter reader = new ReservationJSONReadWriter();
+        return reader.ReadFromFile();
     }
 
     public static void main(String[] args) throws IOException {

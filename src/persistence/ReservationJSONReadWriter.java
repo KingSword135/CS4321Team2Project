@@ -9,12 +9,14 @@ import model.Reservation;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
 public class ReservationJSONReadWriter {
+
+    private List<Reservation> reservations;
 
     public ReservationJSONReadWriter() {
 
@@ -37,17 +39,13 @@ public class ReservationJSONReadWriter {
 
     }
 
-    public void ReadFromFile() throws IOException {
+    public List<Reservation> ReadFromFile() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         File file = new File("src/persistence/reservations.json");
         List<Reservation> reservations = mapper.readValue(file, new TypeReference<>() {
         });
-
-        //test if read works.
-        for (Reservation reservation : reservations) {
-            System.out.println(reservation.toString());
-        }
+        return reservations;
     }
 
     public static void main (String[] args) throws IOException {
@@ -55,7 +53,7 @@ public class ReservationJSONReadWriter {
 
         ReservationJSONReadWriter reservationJSONReadWriter = new ReservationJSONReadWriter();
         ArrayList<Reservation> reservations = new ArrayList<>();
-        Date date = new Date(2026, 11, 21);
+        LocalDate date = LocalDate.of(2026, 6, 21);
         LocalTime startTime = LocalTime.of(10,30);
         LocalTime endTime = LocalTime.NOON;
         Reservation re1 = new Reservation(1,4,date, startTime,endTime);

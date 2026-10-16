@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +10,12 @@ public class Reservation {
 
     public int id;
     public int spaceId;
-    public Date date;
+    public LocalDate date;
     // Store as a LocalTime object
     public LocalTime startTime;
     public LocalTime endTime;
 
-    public Reservation(int id, int spaceId, Date date, LocalTime startTime, LocalTime endTime){
+    public Reservation(int id, int spaceId, LocalDate date, LocalTime startTime, LocalTime endTime){
         this.id = id;
         this.spaceId = spaceId;
         this.date = date;
@@ -99,7 +99,7 @@ public class Reservation {
         return id;
     }
 
-    public void modify(Date newDate, LocalTime newStartTime, LocalTime newEndTime) {
+    public void modify(LocalDate newDate, LocalTime newStartTime, LocalTime newEndTime) {
 
     }
 
