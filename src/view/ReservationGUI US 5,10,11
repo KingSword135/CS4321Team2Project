@@ -1,0 +1,71 @@
+package view;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+public class ReservationGUI extends Application {
+
+    @Override
+    public void start(Stage stage) {
+        Label title = new Label("Room Reservation System");
+
+        TextField spaceIdField = new TextField();
+        spaceIdField.setPromptText("Enter space ID");
+
+        DatePicker datePicker = new DatePicker();
+
+        TextField startTimeField = new TextField();
+        startTimeField.setPromptText("Example: 10:00");
+
+        TextField endTimeField = new TextField();
+        endTimeField.setPromptText("Example: 11:00");
+
+        Button createButton = new Button("Create Reservation");
+        Button cancelButton = new Button("Cancel Reservation");
+        Button modifyButton = new Button("Modify Reservation");
+
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(20));
+        grid.setHgap(10);
+        grid.setVgap(12);
+
+        grid.add(title, 0, 0, 2, 1);
+        grid.add(new Label("Space ID:"), 0, 1);
+        grid.add(spaceIdField, 1, 1);
+        grid.add(new Label("Date:"), 0, 2);
+        grid.add(datePicker, 1, 2);
+        grid.add(new Label("Start Time:"), 0, 3);
+        grid.add(startTimeField, 1, 3);
+        grid.add(new Label("End Time:"), 0, 4);
+        grid.add(endTimeField, 1, 4);
+        grid.add(createButton, 0, 5);
+        grid.add(cancelButton, 1, 5);
+        grid.add(modifyButton, 0, 6);
+
+        createButton.setOnAction(event ->
+                new Alert(Alert.AlertType.INFORMATION,
+                        "Create button clicked!").showAndWait());
+
+        cancelButton.setOnAction(event ->
+                new Alert(Alert.AlertType.INFORMATION,
+                        "Cancel button clicked!").showAndWait());
+
+        modifyButton.setOnAction(event ->
+                new Alert(Alert.AlertType.INFORMATION,
+                        "Modify button clicked!").showAndWait());
+
+        Scene scene = new Scene(grid, 500, 350);
+        stage.setTitle("Room Reservation System");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+
