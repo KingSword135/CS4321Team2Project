@@ -12,11 +12,11 @@
             prefHeight="400.0" prefWidth="400.0">
     <TableView fx:id="ReservationTable" VBox.vgrow="NEVER" editable="false">
             <columns>
-                <TableColumn fx:id="ReservationBuildingName" text="Name" prefWidth="80"></TableColumn>
-                <TableColumn fx:id="Date" text="Date" prefWidth="80"></TableColumn >
-                <TableColumn fx:id="StartTime" text="Start Time" prefWidth="80"></TableColumn>
-                <TableColumn fx:id="EndTime" text="End Time" prefWidth="80"></TableColumn>
-                <TableColumn fx:id="Features" text="Features" prefWidth="80"></TableColumn>
+                <TableColumn fx:id="ReservationBuildingColumn" text="Name" prefWidth="80"></TableColumn>
+                <TableColumn fx:id="DateColumn" text="Date" prefWidth="80"></TableColumn >
+                <TableColumn fx:id="StartTimeColumn" text="Start Time" prefWidth="80"></TableColumn>
+                <TableColumn fx:id="EndTimeColumn" text="End Time" prefWidth="80"></TableColumn>
+                <TableColumn fx:id="FeaturesColumn" text="Features" prefWidth="80"></TableColumn>
             </columns>
     </TableView>
 </VBox>

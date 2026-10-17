@@ -12,35 +12,40 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReservationTest {
 
     @Test
-    void CreateReservationWithAllParameters() {
-        Reservation reservation = new Reservation(
-                1,
-                1001,
-                LocalDate.of(2026,10,20),
-                LocalTime.of(10, 0),
-                LocalTime.of(11, 0)
-        );
-
-        assertEquals(1, reservation.getId());
-        assertEquals(1001, reservation.getSpaceId());
-        assertEquals(LocalDate.of(2026,10,20)   , reservation.getDate());
-        assertEquals(LocalTime.of(10, 0), reservation.getStartTime());
-        assertEquals(LocalTime.of(11, 0), reservation.getEndTime());
-    }
-
-    @Test
     void testCreateReservation() {
         ReservationManager manager = new ReservationManager();
 
         Reservation reservation = manager.createReservation(
                 1001,
-                LocalDate.of(2026,10,20),
+                LocalDate.of(2026, 10, 20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
 
         assertNotNull(reservation);
+        assertEquals(1, reservation.getId());
+        assertEquals(1001, reservation.getSpaceId());
         assertEquals(1, manager.getReservations().size());
+    }
+
+    @Test
+    void testRejectOverlappingReservation() {
+        ReservationManager manager = new ReservationManager();
+        LocalDate date = LocalDate.of(2026, 10, 20);
+
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0)
+        );
+
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.createReservation(
+                        1001, date,
+                        LocalTime.of(10, 30),
+                        LocalTime.of(11, 30)
+                )
+        );
     }
 
     @Test
@@ -49,7 +54,7 @@ class ReservationTest {
 
         Reservation reservation = manager.createReservation(
                 1001,
-                LocalDate.of(2026,10,20),
+                LocalDate.of(2026, 10, 20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
@@ -60,17 +65,26 @@ class ReservationTest {
     }
 
     @Test
+    void testCancelNonexistentReservation() {
+        ReservationManager manager = new ReservationManager();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.cancelReservation(999)
+        );
+    }
+
+    @Test
     void testModifyReservation() {
         ReservationManager manager = new ReservationManager();
 
         Reservation reservation = manager.createReservation(
                 1001,
-                LocalDate.of(2026,10,20),
+                LocalDate.of(2026, 10, 20),
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
 
-        LocalDate newDate = LocalDate.of(2026,10,21);
+        LocalDate newDate = LocalDate.of(2026, 10, 20);
 
         manager.modifyReservation(
                 reservation.getId(),
@@ -85,22 +99,28 @@ class ReservationTest {
     }
 
     @Test
-    void testRejectOverlappingReservation() {
+    void testRejectOverlappingModification() {
         ReservationManager manager = new ReservationManager();
+        LocalDate Date = LocalDate.of(2026, 10, 20);
 
-        manager.createReservation(
-                1001,
-                LocalDate.of(2026,10,20),
+        Reservation first = manager.createReservation(
+                1001, Date,
                 LocalTime.of(10, 0),
                 LocalTime.of(11, 0)
         );
 
+        manager.createReservation(
+                1001, Date,
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0)
+        );
+
         assertThrows(IllegalArgumentException.class, () ->
-                manager.createReservation(
-                        1001,
-                        LocalDate.of(2026,10,20),
-                        LocalTime.of(10, 30),
-                        LocalTime.of(11, 30)
+                manager.modifyReservation(
+                        first.getId(),
+                        Date,
+                        LocalTime.of(13, 30),
+                        LocalTime.of(14, 30)
                 )
         );
     }

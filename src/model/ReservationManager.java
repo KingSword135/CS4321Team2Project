@@ -1,13 +1,16 @@
 package model;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import persistence.DataLoader;
+
 public class ReservationManager {
 
-    private final List<Reservation> reservations;
+    private List<Reservation> reservations;
     private int nextId;
 
     public ReservationManager() {
@@ -90,5 +93,10 @@ public class ReservationManager {
 
     public List<Reservation> getReservations() {
         return new ArrayList<>(reservations);
+    }
+
+    public void loadReservations() throws IOException {
+        DataLoader dat = new DataLoader();
+        this.reservations = dat.loadReservations();
     }
 }

@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import model.Reservation;
 import model.Space;
 import persistence.InMemorySpaceRepository;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class ReservationListController implements Initializable {
 
     public Map<Integer, String> mapSpaceToBuildingID;
+    public Map<Integer, List<String>> mapSpaceToBuildingFeatures;
 
     public ReservationListController() {
 
@@ -33,25 +35,30 @@ public class ReservationListController implements Initializable {
 
     private ObservableList<Reservation> reservations = FXCollections.observableArrayList();
 
-    private TableColumn<Reservation, String> SpaceNameColumn;
+    @FXML
+    private TableColumn<Reservation, String> ReservationBuildingColumn;
 
+    @FXML
     private TableColumn<Reservation, Date> DateColumn;
 
+    @FXML
     private TableColumn<Reservation, String> StartTimeColumn;
 
+    @FXML
     private TableColumn<Reservation, String> EndTimeColumn;
 
-    private TableColumn<Reservation, List<String>> featuresColumn;
+    @FXML
+    private TableColumn<Reservation, List<String>> FeaturesColumn;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         ReservationTable.setEditable(false);
-        SpaceNameColumn = new TableColumn<>("Space Name");
-        DateColumn = new TableColumn<>("Date");
-        StartTimeColumn = new TableColumn<>("Start Time");
-        EndTimeColumn = new TableColumn<>("End Time");
-        featuresColumn = new TableColumn<>("Features");
+        ReservationBuildingColumn.setCellValueFactory(new PropertyValueFactory<>("spaceName"));
+        DateColumn.setCellValueFactory(new PropertyValueFactory<>("Date"));
+        StartTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
+        EndTimeColumn.setCellValueFactory(new PropertyValueFactory<>("endTime"));
+        FeaturesColumn.setCellValueFactory(new PropertyValueFactory<>("features"));
         ReservationTable.setItems(reservations);
         reservations.setAll();
     }
@@ -82,6 +89,11 @@ public class ReservationListController implements Initializable {
                 .collect(Collectors.toMap(Space::getId, Space::getName));
 
         reservations.setAll(reservationRepository.getAllReservations());
+    }
+
+    public void refreshTable() {
+        ReservationTable.getItems().setAll(reservationRepository.getAllReservations());
+        ReservationTable.refresh();
     }
 }
 
