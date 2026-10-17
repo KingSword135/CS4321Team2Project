@@ -4,11 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import model.Reservation;
 import model.Space;
 import persistence.InMemorySpaceRepository;
@@ -29,8 +26,10 @@ public class ReservationListController implements Initializable {
 
     SpaceRepository spaceRepository;
 
+    ReservationRepository reservationRepository;
+
     @FXML
-    private TableView<Reservation> reservationTable;
+    private TableView<Reservation> ReservationTable;
 
     private ObservableList<Reservation> reservations = FXCollections.observableArrayList();
 
@@ -46,26 +45,43 @@ public class ReservationListController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        mapSpaceToBuildingID = spaceRepository.getAllSpaces().stream().collect(Collectors.toMap(Space::getId, Space::getName));
-        reservationTable.setEditable(false);
+
+        ReservationTable.setEditable(false);
         SpaceNameColumn = new TableColumn<>("Space Name");
         DateColumn = new TableColumn<>("Date");
         StartTimeColumn = new TableColumn<>("Start Time");
         EndTimeColumn = new TableColumn<>("End Time");
         featuresColumn = new TableColumn<>("Features");
-        reservationTable.setItems(reservations);
+        ReservationTable.setItems(reservations);
         reservations.setAll();
     }
 
-    public void setReservationRepository() {
+    public void setReservationRepository(ReservationRepository reservationRepository) {
+        this.reservationRepository = reservationRepository;
+    }
 
+    public void setSpaceRepository(SpaceRepository spaceRepository) {
+        this.spaceRepository = spaceRepository;
     }
 
     public Reservation getSelectedReservation() {
-        return reservationTable.getSelectionModel().getSelectedItem();
+        return ReservationTable.getSelectionModel().getSelectedItem();
     }
 
-    public void loadAllReservations() {
+    public void loadReservations() {
+        if (spaceRepository == null) {
+            throw new IllegalStateException("Space repository has not been set");
+        }
 
+        if (reservationRepository == null) {
+            throw new IllegalStateException("Reservation repository has not been set");
+        }
+
+        mapSpaceToBuildingID = spaceRepository.getAllSpaces()
+                .stream()
+                .collect(Collectors.toMap(Space::getId, Space::getName));
+
+        reservations.setAll(reservationRepository.getAllReservations());
     }
 }
+

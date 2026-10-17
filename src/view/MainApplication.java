@@ -5,6 +5,7 @@ import controller.SpaceListController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
@@ -22,9 +23,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.fxml.FXML;
 import org.w3c.dom.events.Event;
-import persistence.DataLoader;
-import persistence.InMemorySpaceRepository;
-import persistence.SpaceRepository;
+import persistence.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,9 +31,13 @@ import java.util.List;
 public class MainApplication extends Application {
 
     SpaceRepository spaceRepository;
+    ReservationRepository reservationRepository;
+
     DataLoader loader = new DataLoader();
-    FXMLLoader fxmlLoader = new FXMLLoader();
+    FXMLLoader fxmlLoader1 = new FXMLLoader();
+    FXMLLoader fxmlLoader2 = new FXMLLoader();
     SpaceListController controller1;
+    ReservationListController controller2;
 
     Label label = new Label("Valdosta Space & Reservation Application");
     Label label2 = new Label("Spaces");
@@ -71,6 +74,7 @@ public class MainApplication extends Application {
         pane.setTop(buildTopPane());
         pane.setLeft(buildLeftPane());
         pane.setCenter(buildCentralPane());
+        pane.setRight(buildRightPane());
         pane.setBottom(buildBottomPane());
         return pane;
     }
@@ -91,9 +95,9 @@ public class MainApplication extends Application {
     private VBox buildLeftPane() throws IOException {
         List<Space> spaces = loader.loadSpaces();
         spaceRepository = new InMemorySpaceRepository(spaces);
-        fxmlLoader.setLocation(getClass().getResource("SpaceListView.fxml"));
-        VBox pane1 = fxmlLoader.load();
-        controller1 = fxmlLoader.getController();
+        fxmlLoader1.setLocation(getClass().getResource("SpaceListView.fxml"));
+        VBox pane1 = fxmlLoader1.load();
+        controller1 = fxmlLoader1.getController();
         controller1.setSpaceRepository(spaceRepository);
         controller1.loadSpaces();
         return pane1;
@@ -101,7 +105,7 @@ public class MainApplication extends Application {
 
     private Pane buildDetails1Pane() {
         HBox pane = new HBox(10);
-
+        pane.setPadding(new Insets(10,10,10,10));
         viewDetails.setOnAction(new showFeaturesOfSpace());
         pane.getChildren().add(viewDetails);
         pane.getChildren().add(filterCapacities);
@@ -112,6 +116,7 @@ public class MainApplication extends Application {
 
     private Pane buildDetails2Pane() {
         HBox pane = new HBox(10);
+        pane.setPadding(new Insets(10,10,10,10));
         pane.getChildren().add(filterFeatures);
         pane.getChildren().add(features);
         return pane;
@@ -126,13 +131,15 @@ public class MainApplication extends Application {
     }
 
     private VBox buildRightPane() throws IOException {
-        VBox pane = new VBox();
-//        List<Reservation> reservations = loader.loadReservations();
-//        ReservationListController controller = new ReservationListController();
-//        controller.setReservationRepository(new InMemoryReservationRepository(reservations));
-//        controller.loadReservations();
-//        pane.getChildren().add(controller.getRoot());
-        return pane;
+        List<Reservation> reservations = loader.loadReservations();
+        reservationRepository = new InMemoryReservationRepository(reservations);
+        fxmlLoader2.setLocation(getClass().getResource("ReservationListView.fxml"));
+        VBox pane1 = fxmlLoader2.load();
+        controller2 = fxmlLoader2.getController();
+        controller2.setSpaceRepository(spaceRepository);
+        controller2.setReservationRepository(reservationRepository);
+        controller2.loadReservations();
+        return pane1;
     }
 
     private HBox buildBottomPane() {

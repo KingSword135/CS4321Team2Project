@@ -22,4 +22,11 @@
   "building" : "Athletic Complex",
   "capacity" : 30,
   "features" : []
-} ]
+},
+  {
+    "id" : 5001,
+    "name" : "2nd Floor Study Room A",
+    "building" : "Odum Library",
+    "capacity" : 14,
+    "features" : ["Projector", "Whiteboard"]
+  }]
