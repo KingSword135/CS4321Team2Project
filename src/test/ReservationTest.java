@@ -1,117 +1,238 @@
 package model;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
-public class ReservationManager {
+import static org.junit.jupiter.api.Assertions.*;
 
-    private final List<Reservation> reservations;
-    private int nextId;
+class ReservationManagerTest {
 
-    public ReservationManager() {
-        reservations = new ArrayList<>();
-        nextId = 1;
+    private ReservationManager manager;
+    private LocalDate date;
+
+    @BeforeEach
+    void setUp() {
+        manager = new ReservationManager();
+        date = LocalDate.of(2026, 10, 20);
     }
 
     // US-5: Create a reservation
-    public Reservation createReservation(int spaceId, LocalDate date,
-                                         LocalTime startTime,
-                                         LocalTime endTime) {
-        if (date == null) {
-            throw new IllegalArgumentException("Date is required.");
-        }
 
-        if (!isTimeAvailable(spaceId, date, startTime, endTime)) {
-            throw new IllegalArgumentException(
-                    "The selected time is not available.");
-        }
+    @Test
+    void createReservationSuccessfully() {
+        Reservation reservation = manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
 
-        Reservation reservation = new Reservation(
-                nextId, spaceId, date, startTime, endTime);
+        assertNotNull(reservation);
+        assertEquals(1, reservation.getId());
+        assertEquals(1001, reservation.getSpaceId());
+        assertEquals(date, reservation.getDate());
+        assertEquals(LocalTime.of(9, 0), reservation.getStartTime());
+        assertEquals(LocalTime.of(10, 0), reservation.getEndTime());
+    }
 
-        reservations.add(reservation);
-        nextId++;
+    @Test
+    void createdReservationAppearsInReservationList() {
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
 
-        return reservation;
+        assertEquals(1, manager.getReservations().size());
+    }
+
+    @Test
+    void overlappingReservationIsRejected() {
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.createReservation(
+                        1001, date,
+                        LocalTime.of(9, 30),
+                        LocalTime.of(10, 30)));
+    }
+
+    @Test
+    void sameTimeForDifferentSpaceIsAllowed() {
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        assertDoesNotThrow(() ->
+                manager.createReservation(
+                        2001, date,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(10, 0)));
+    }
+
+    @Test
+    void missingDateIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.createReservation(
+                        1001, null,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(10, 0)));
     }
 
     // US-10: Cancel a reservation
-    public void cancelReservation(int reservationId) {
-        Reservation reservation = findReservation(reservationId);
 
-        if (reservation == null) {
-            throw new IllegalArgumentException("Reservation not found.");
-        }
+    @Test
+    void cancelReservationRemovesItFromList() {
+        Reservation reservation = manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
 
-        reservations.remove(reservation);
+        manager.cancelReservation(reservation.getId());
+
+        assertTrue(manager.getReservations().isEmpty());
+        assertNull(manager.findReservation(reservation.getId()));
+    }
+
+    @Test
+    void cancellingUnknownReservationIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.cancelReservation(999));
+    }
+
+    @Test
+    void cancelledTimeCanBeReservedAgain() {
+        Reservation reservation = manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        manager.cancelReservation(reservation.getId());
+
+        assertDoesNotThrow(() ->
+                manager.createReservation(
+                        1001, date,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(10, 0)));
     }
 
     // US-11: Modify a reservation
-    public void modifyReservation(int reservationId, LocalDate newDate,
-                                  LocalTime newStartTime,
-                                  LocalTime newEndTime) {
-        Reservation reservation = findReservation(reservationId);
 
-        if (reservation == null) {
-            throw new IllegalArgumentException("Reservation not found.");
-        }
+    @Test
+    void modifyReservationChangesDateAndTimes() {
+        Reservation reservation = manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
 
-        if (newDate == null) {
-            throw new IllegalArgumentException("Date is required.");
-        }
+        LocalDate newDate = date.plusDays(1);
 
-        if (!isTimeAvailable(reservation.getSpaceId(), newDate,
-                newStartTime, newEndTime, reservationId)) {
-            throw new IllegalArgumentException(
-                    "The new time is not available.");
-        }
+        manager.modifyReservation(
+                reservation.getId(),
+                newDate,
+                LocalTime.of(11, 0),
+                LocalTime.of(12, 0));
 
-        reservation.modify(newDate, newStartTime, newEndTime);
+        assertEquals(newDate, reservation.getDate());
+        assertEquals(LocalTime.of(11, 0), reservation.getStartTime());
+        assertEquals(LocalTime.of(12, 0), reservation.getEndTime());
     }
 
-    public Reservation findReservation(int reservationId) {
-        for (Reservation reservation : reservations) {
-            if (reservation.getId() == reservationId) {
-                return reservation;
-            }
-        }
+    @Test
+    void modifyingToOverlappingTimeIsRejected() {
+        Reservation first = manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
 
-        return null;
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.modifyReservation(
+                        first.getId(),
+                        date,
+                        LocalTime.of(13, 0),
+                        LocalTime.of(14, 0)));
     }
 
-    private boolean isTimeAvailable(int spaceId, LocalDate date,
-                                    LocalTime startTime,
-                                    LocalTime endTime) {
-        return isTimeAvailable(spaceId, date, startTime, endTime, -1);
+    @Test
+    void modifyingReservationDoesNotConflictWithItself() {
+        Reservation reservation = manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        assertDoesNotThrow(() ->
+                manager.modifyReservation(
+                        reservation.getId(),
+                        date,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(10, 0)));
     }
 
-    private boolean isTimeAvailable(int spaceId, LocalDate date,
-                                    LocalTime startTime,
-                                    LocalTime endTime,
-                                    int ignoredReservationId) {
-        for (Reservation reservation : reservations) {
-            if (reservation.getId() == ignoredReservationId) {
-                continue;
-            }
-
-            if (reservation.getSpaceId() == spaceId
-                    && reservation.getDate().equals(date)) {
-                boolean overlaps =
-                        startTime.isBefore(reservation.getEndTime())
-                        && endTime.isAfter(reservation.getStartTime());
-
-                if (overlaps) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+    @Test
+    void modifyingUnknownReservationIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.modifyReservation(
+                        999,
+                        date,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(10, 0)));
     }
 
-    public List<Reservation> getReservations() {
-        return new ArrayList<>(reservations);
+    @Test
+    void failedModificationDoesNotChangeOriginalReservation() {
+        Reservation reservation = manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                manager.modifyReservation(
+                        reservation.getId(),
+                        date,
+                        LocalTime.of(13, 0),
+                        LocalTime.of(14, 0)));
+
+        assertEquals(LocalTime.of(9, 0), reservation.getStartTime());
+        assertEquals(LocalTime.of(10, 0), reservation.getEndTime());
+    }
+
+    // Reservation lookup and list behavior
+
+    @Test
+    void findReservationReturnsNullForUnknownId() {
+        assertNull(manager.findReservation(999));
+    }
+
+    @Test
+    void getReservationsReturnsAllReservations() {
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        manager.createReservation(
+                2001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        List<Reservation> reservations = manager.getReservations();
+
+        assertEquals(2, reservations.size());
     }
 }
+
