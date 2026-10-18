@@ -5,31 +5,31 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ReservationManagerTest {
+class ReservationTest {
 
-    private ReservationManager manager;
+    private Reservation reservation;
     private LocalDate date;
 
     @BeforeEach
     void setUp() {
-        manager = new ReservationManager();
         date = LocalDate.of(2026, 10, 20);
+
+        reservation = new Reservation(
+                1,
+                1001,
+                date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0)
+        );
     }
 
-    // US-5: Create a reservation
+    // US-5: Create a valid reservation
 
     @Test
-    void createReservationSuccessfully() {
-        Reservation reservation = manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        assertNotNull(reservation);
+    void acceptsValidReservation() {
         assertEquals(1, reservation.getId());
         assertEquals(1001, reservation.getSpaceId());
         assertEquals(date, reservation.getDate());
@@ -38,102 +38,102 @@ class ReservationManagerTest {
     }
 
     @Test
-    void createdReservationAppearsInReservationList() {
-        manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        assertEquals(1, manager.getReservations().size());
-    }
-
-    @Test
-    void overlappingReservationIsRejected() {
-        manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
+    void rejectsStartTimeBeforeEightAm() {
         assertThrows(IllegalArgumentException.class, () ->
-                manager.createReservation(
-                        1001, date,
-                        LocalTime.of(9, 30),
-                        LocalTime.of(10, 30)));
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(7, 59),
+                        LocalTime.of(9, 0)));
     }
 
     @Test
-    void sameTimeForDifferentSpaceIsAllowed() {
-        manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
+    void allowsStartTimeAtEightAm() {
         assertDoesNotThrow(() ->
-                manager.createReservation(
-                        2001, date,
-                        LocalTime.of(9, 0),
-                        LocalTime.of(10, 0)));
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(8, 0),
+                        LocalTime.of(9, 0)));
     }
 
     @Test
-    void missingDateIsRejected() {
+    void rejectsEndTimeAfterEightPm() {
         assertThrows(IllegalArgumentException.class, () ->
-                manager.createReservation(
-                        1001, null,
-                        LocalTime.of(9, 0),
-                        LocalTime.of(10, 0)));
-    }
-
-    // US-10: Cancel a reservation
-
-    @Test
-    void cancelReservationRemovesItFromList() {
-        Reservation reservation = manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        manager.cancelReservation(reservation.getId());
-
-        assertTrue(manager.getReservations().isEmpty());
-        assertNull(manager.findReservation(reservation.getId()));
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(19, 0),
+                        LocalTime.of(20, 1)));
     }
 
     @Test
-    void cancellingUnknownReservationIsRejected() {
-        assertThrows(IllegalArgumentException.class, () ->
-                manager.cancelReservation(999));
-    }
-
-    @Test
-    void cancelledTimeCanBeReservedAgain() {
-        Reservation reservation = manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        manager.cancelReservation(reservation.getId());
-
+    void allowsEndTimeAtEightPm() {
         assertDoesNotThrow(() ->
-                manager.createReservation(
-                        1001, date,
-                        LocalTime.of(9, 0),
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(19, 0),
+                        LocalTime.of(20, 0)));
+    }
+
+    @Test
+    void rejectsEndTimeBeforeStartTime() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(11, 0),
                         LocalTime.of(10, 0)));
     }
 
-    // US-11: Modify a reservation
+    @Test
+    void rejectsEndTimeEqualToStartTime() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(10, 0),
+                        LocalTime.of(10, 0)));
+    }
 
     @Test
-    void modifyReservationChangesDateAndTimes() {
-        Reservation reservation = manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
+    void rejectsReservationLongerThanTwoHours() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(11, 1)));
+    }
 
+    @Test
+    void allowsReservationExactlyTwoHoursLong() {
+        assertDoesNotThrow(() ->
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(11, 0)));
+    }
+
+    @Test
+    void rejectsNullStartTime() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Reservation(
+                        2, 1001, date,
+                        null,
+                        LocalTime.of(10, 0)));
+    }
+
+    @Test
+    void rejectsNullEndTime() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Reservation(
+                        2, 1001, date,
+                        LocalTime.of(9, 0),
+                        null));
+    }
+
+    // US-11: Modify a reservation using valid times
+
+    @Test
+    void modifiesReservationWithValidDateAndTimes() {
         LocalDate newDate = date.plusDays(1);
 
-        manager.modifyReservation(
-                reservation.getId(),
+        reservation.modify(
                 newDate,
                 LocalTime.of(11, 0),
                 LocalTime.of(12, 0));
@@ -144,95 +144,38 @@ class ReservationManagerTest {
     }
 
     @Test
-    void modifyingToOverlappingTimeIsRejected() {
-        Reservation first = manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        manager.createReservation(
-                1001, date,
-                LocalTime.of(13, 0),
-                LocalTime.of(14, 0));
-
+    void rejectsModificationWithEndBeforeStart() {
         assertThrows(IllegalArgumentException.class, () ->
-                manager.modifyReservation(
-                        first.getId(),
+                reservation.modify(
                         date,
-                        LocalTime.of(13, 0),
-                        LocalTime.of(14, 0)));
-    }
-
-    @Test
-    void modifyingReservationDoesNotConflictWithItself() {
-        Reservation reservation = manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        assertDoesNotThrow(() ->
-                manager.modifyReservation(
-                        reservation.getId(),
-                        date,
-                        LocalTime.of(9, 0),
+                        LocalTime.of(11, 0),
                         LocalTime.of(10, 0)));
     }
 
     @Test
-    void modifyingUnknownReservationIsRejected() {
+    void rejectsModificationLongerThanTwoHours() {
         assertThrows(IllegalArgumentException.class, () ->
-                manager.modifyReservation(
-                        999,
+                reservation.modify(
                         date,
                         LocalTime.of(9, 0),
-                        LocalTime.of(10, 0)));
+                        LocalTime.of(11, 1)));
     }
 
     @Test
-    void failedModificationDoesNotChangeOriginalReservation() {
-        Reservation reservation = manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        manager.createReservation(
-                1001, date,
-                LocalTime.of(13, 0),
-                LocalTime.of(14, 0));
-
+    void rejectsModificationOutsideBusinessHours() {
         assertThrows(IllegalArgumentException.class, () ->
-                manager.modifyReservation(
-                        reservation.getId(),
+                reservation.modify(
                         date,
-                        LocalTime.of(13, 0),
-                        LocalTime.of(14, 0)));
-
-        assertEquals(LocalTime.of(9, 0), reservation.getStartTime());
-        assertEquals(LocalTime.of(10, 0), reservation.getEndTime());
-    }
-
-    // Reservation lookup and list behavior
-
-    @Test
-    void findReservationReturnsNullForUnknownId() {
-        assertNull(manager.findReservation(999));
+                        LocalTime.of(7, 0),
+                        LocalTime.of(8, 0)));
     }
 
     @Test
-    void getReservationsReturnsAllReservations() {
-        manager.createReservation(
-                1001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        manager.createReservation(
-                2001, date,
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0));
-
-        List<Reservation> reservations = manager.getReservations();
-
-        assertEquals(2, reservations.size());
+    void rejectsModificationWithNullDate() {
+        assertThrows(IllegalArgumentException.class, () ->
+                reservation.modify(
+                        null,
+                        LocalTime.of(11, 0),
+                        LocalTime.of(12, 0)));
     }
 }
-
