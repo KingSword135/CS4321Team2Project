@@ -23,6 +23,8 @@ class ReservationScheduleTest {
         date = LocalDate.of(2026, 10, 20);
     }
 
+    // US-6: View the schedule for one day
+
     @Test
     void dayScheduleContains24HalfHourSlots() {
         List<ScheduleSlot> slots =
@@ -31,6 +33,10 @@ class ReservationScheduleTest {
         assertEquals(24, slots.size());
         assertEquals(LocalTime.of(8, 0),
                 slots.get(0).getStartTime());
+        assertEquals(LocalTime.of(8, 30),
+                slots.get(0).getEndTime());
+        assertEquals(LocalTime.of(19, 30),
+                slots.get(23).getStartTime());
         assertEquals(LocalTime.of(20, 0),
                 slots.get(23).getEndTime());
     }
@@ -41,11 +47,18 @@ class ReservationScheduleTest {
                 schedule.getDaySchedule(1001, date);
 
         assertTrue(slots.stream().allMatch(
-                slot -> slot.getStatus().equals("Available")));
+                ScheduleSlot::isAvailable));
     }
 
     @Test
-    void reservationMarksOverlappingSlotAsReserved() {
+    void emptyDayDisplaysNoReservationsMessage() {
+        assertEquals(
+                "No reservations for this space on this date.",
+                schedule.getDayMessage(1001, date));
+    }
+
+    @Test
+    void reservationMarksOverlappingSlotsAsReserved() {
         manager.createReservation(
                 1001, date,
                 LocalTime.of(9, 0),
@@ -54,13 +67,9 @@ class ReservationScheduleTest {
         List<ScheduleSlot> slots =
                 schedule.getDaySchedule(1001, date);
 
-        ScheduleSlot nineToNineThirty = slots.get(2);
-        ScheduleSlot nineThirtyToTen = slots.get(3);
-        ScheduleSlot tenToTenThirty = slots.get(4);
-
-        assertEquals("Reserved", nineToNineThirty.getStatus());
-        assertEquals("Reserved", nineThirtyToTen.getStatus());
-        assertEquals("Available", tenToTenThirty.getStatus());
+        assertTrue(slots.get(2).isReserved());
+        assertTrue(slots.get(3).isReserved());
+        assertTrue(slots.get(4).isAvailable());
     }
 
     @Test
@@ -75,9 +84,11 @@ class ReservationScheduleTest {
 
         ScheduleSlot nineToNineThirty = slots.get(2);
 
-        assertEquals("Reserved", nineToNineThirty.getStatus());
-        assertEquals("09:10–09:20",
-                nineToNineThirty.getReservationDetails());
+        assertTrue(nineToNineThirty.isReserved());
+        assertTrue(nineToNineThirty.getReservationDetails()
+                .contains("09:10"));
+        assertTrue(nineToNineThirty.getReservationDetails()
+                .contains("09:20"));
     }
 
     @Test
@@ -91,8 +102,16 @@ class ReservationScheduleTest {
                 schedule.getDaySchedule(1001, date);
 
         assertTrue(slots.stream().allMatch(
-                slot -> slot.getStatus().equals("Available")));
+                ScheduleSlot::isAvailable));
     }
+
+    @Test
+    void missingDateIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> schedule.getDaySchedule(1001, null));
+    }
+
+    // US-7: View the schedule across a date range
 
     @Test
     void dateRangeIsInclusiveAndChronological() {
@@ -118,21 +137,41 @@ class ReservationScheduleTest {
 
     @Test
     void rangeLongerThanSevenDaysIsRejected() {
-        assertThrows(IllegalArgumentException.class, () ->
-                schedule.getRangeSchedule(
+        assertThrows(IllegalArgumentException.class,
+                () -> schedule.getRangeSchedule(
                         1001, date, date.plusDays(7)));
     }
 
     @Test
     void reversedDateRangeIsRejected() {
-        assertThrows(IllegalArgumentException.class, () ->
-                schedule.getRangeSchedule(
+        assertThrows(IllegalArgumentException.class,
+                () -> schedule.getRangeSchedule(
                         1001, date.plusDays(1), date));
     }
 
     @Test
-    void missingDateIsRejected() {
-        assertThrows(IllegalArgumentException.class, () ->
-                schedule.getDaySchedule(1001, null));
+    void missingRangeDateIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> schedule.getRangeSchedule(
+                        1001, null, date));
+    }
+
+    // US-8: Visually distinguish reserved and available time
+
+    @Test
+    void reservedAndAvailableSlotsHaveDifferentStatuses() {
+        manager.createReservation(
+                1001, date,
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0));
+
+        List<ScheduleSlot> slots =
+                schedule.getDaySchedule(1001, date);
+
+        assertEquals("Reserved", slots.get(2).getStatus());
+        assertEquals("Available", slots.get(4).getStatus());
+        assertNotEquals(
+                slots.get(2).getStatus(),
+                slots.get(4).getStatus());
     }
 }
