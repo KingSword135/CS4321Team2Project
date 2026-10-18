@@ -20,9 +20,7 @@ public class Reservation {
         this.id = id;
         this.spaceId = spaceId;
         this.date = date;
-
         validateTimes(startTime, endTime);
-
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -36,22 +34,23 @@ public class Reservation {
 
     private void validateTimes(LocalTime startTime, LocalTime endTime) {
         if (startTime == null || endTime == null) {
-            throw new IllegalArgumentException("Start and end times are required.");
+            throw new IllegalArgumentException(
+                    "Start and end times are required.");
         }
 
         if (startTime.isBefore(LocalTime.of(8, 0))) {
             throw new IllegalArgumentException(
-                    "Start time cannot be before 8:00am");
+                    "Start time cannot be before 8:00 AM.");
         }
 
-        if (endTime.isBefore(startTime)) {
+        if (!endTime.isAfter(startTime)) {
             throw new IllegalArgumentException(
-                    "End time cannot be before the Start time");
+                    "End time must be after the start time.");
         }
 
         if (endTime.isAfter(LocalTime.of(20, 0))) {
             throw new IllegalArgumentException(
-                    "End time cannot be after 8:00pm");
+                    "End time cannot be after 8:00 PM.");
         }
 
         long duration = endTime.toSecondOfDay() / 60
@@ -64,38 +63,24 @@ public class Reservation {
     }
 
     public List<Space> filterByMinCapacity(String capacityInput) {
-        int minCapacity = parseCapacity(capacityInput);
+        int minCapacity;
 
-        List<Space> matches = new ArrayList<>();
+        try {
+            minCapacity = Integer.parseInt(capacityInput);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                    "Capacity must be a valid number.");
+        }
+
+        List<Space> filteredSpaces = new ArrayList<>();
 
         for (Space space : spaces) {
             if (space.getCapacity() >= minCapacity) {
-                matches.add(space);
+                filteredSpaces.add(space);
             }
         }
 
-        return matches;
-    }
-
-    private int parseCapacity(String capacityInput) {
-        if (capacityInput == null || capacityInput.trim().isEmpty()) {
-            throw new IllegalArgumentException("Capacity is required.");
-        }
-
-        int value;
-
-        try {
-            value = Integer.parseInt(capacityInput.trim());
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Capacity must be a number.");
-        }
-
-        if (value <= 0) {
-            throw new IllegalArgumentException(
-                    "Capacity must be greater than 0.");
-        }
-
-        return value;
+        return filteredSpaces;
     }
 
     public int getSpaceId() {
@@ -118,14 +103,24 @@ public class Reservation {
         return startTime;
     }
 
-    public void modify(LocalDate newDate, LocalTime newStartTime,
+    public void modify(LocalDate newDate,
+                       LocalTime newStartTime,
                        LocalTime newEndTime) {
+        modify(spaceId, newDate, newStartTime, newEndTime);
+    }
+
+    public void modify(int newSpaceId,
+                       LocalDate newDate,
+                       LocalTime newStartTime,
+                       LocalTime newEndTime) {
+
         if (newDate == null) {
             throw new IllegalArgumentException("Date is required.");
         }
 
         validateTimes(newStartTime, newEndTime);
 
+        this.spaceId = newSpaceId;
         this.date = newDate;
         this.startTime = newStartTime;
         this.endTime = newEndTime;
@@ -133,32 +128,16 @@ public class Reservation {
 
     @Override
     public String toString() {
-        return "ID: " + getId()
-                + " Space ID: " + getSpaceId()
-                + " Date: " + getDate()
-                + " Start Time: " + getStartTime()
-                + " End Time: " + getEndTime();
+        return "Reservation{" +
+                "id=" + id +
+                ", spaceId=" + spaceId +
+                ", date=" + date +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
     }
 
     public static void main(String[] args) {
-        Reservation app = new Reservation();
-        String input = args.length > 0 ? args[0] : "10";
-
-        try {
-            List<Space> results = app.filterByMinCapacity(input);
-
-            if (results.isEmpty()) {
-                System.out.println(
-                        "No matching spaces exist for capacity >= " + input + ".");
-            } else {
-                System.out.println("Spaces with capacity >= " + input + ":");
-
-                for (Space space : results) {
-                    System.out.println("  " + space);
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("Validation error: " + e.getMessage());
-        }
+        System.out.println("Reservation system started.");
     }
 }
