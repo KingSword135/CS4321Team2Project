@@ -1,3 +1,4 @@
+
 package model;
 
 import java.time.LocalDate;
@@ -21,9 +22,11 @@ public class ReservationSchedule {
             throw new IllegalArgumentException(
                     "Reservation manager is required.");
         }
+
         this.manager = manager;
     }
 
+    // US-6: View a day's availability
     public List<ScheduleSlot> getDaySchedule(
             int spaceId, LocalDate date) {
 
@@ -34,6 +37,7 @@ public class ReservationSchedule {
         return buildSchedule(spaceId, date, date);
     }
 
+    // US-7: View availability across multiple days
     public List<ScheduleSlot> getRangeSchedule(
             int spaceId, LocalDate startDate, LocalDate endDate) {
 
@@ -57,44 +61,78 @@ public class ReservationSchedule {
         return buildSchedule(spaceId, startDate, endDate);
     }
 
+    // US-6 and US-7: Build chronological 30-minute slots.
     private List<ScheduleSlot> buildSchedule(
             int spaceId, LocalDate startDate, LocalDate endDate) {
 
-        List<Reservation> reservations = manager.getReservations();
+        List<Reservation> allReservations = manager.getReservations();
         List<ScheduleSlot> slots = new ArrayList<>();
 
         for (LocalDate date = startDate;
              !date.isAfter(endDate);
              date = date.plusDays(1)) {
 
+            List<Reservation> dayReservations = new ArrayList<>();
+
+            for (Reservation reservation : allReservations) {
+                if (reservation.getSpaceId() == spaceId
+                        && reservation.getDate().equals(date)) {
+                    dayReservations.add(reservation);
+                }
+            }
+
+            dayReservations.sort(
+                    Comparator.comparing(Reservation::getStartTime));
+
             for (LocalTime start = OPEN;
                  start.isBefore(CLOSE);
                  start = start.plusMinutes(SLOT_MINUTES)) {
 
                 LocalTime end = start.plusMinutes(SLOT_MINUTES);
-
                 List<Reservation> overlapping = new ArrayList<>();
 
-                for (Reservation reservation : reservations) {
-                    if (reservation.getSpaceId() == spaceId
-                            && reservation.getDate().equals(date)
-                            && start.isBefore(reservation.getEndTime())
+                for (Reservation reservation : dayReservations) {
+                    if (start.isBefore(reservation.getEndTime())
                             && end.isAfter(reservation.getStartTime())) {
                         overlapping.add(reservation);
                     }
                 }
 
-                overlapping.sort(
-                        Comparator.comparing(Reservation::getStartTime));
-
                 slots.add(new ScheduleSlot(
-                        date, start, end,
+                        date,
+                        start,
+                        end,
                         overlapping.isEmpty() ? "Available" : "Reserved",
                         overlapping));
             }
         }
 
         return slots;
+    }
+
+    // US-6: Check whether a space has any reservations on a date.
+    public boolean hasReservations(int spaceId, LocalDate date) {
+        if (date == null) {
+            throw new IllegalArgumentException("Date is required.");
+        }
+
+        for (Reservation reservation : manager.getReservations()) {
+            if (reservation.getSpaceId() == spaceId
+                    && reservation.getDate().equals(date)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // US-6: Message for a day with no reservations.
+    public String getDayMessage(int spaceId, LocalDate date) {
+        if (!hasReservations(spaceId, date)) {
+            return "No reservations for this space on this date.";
+        }
+
+        return "";
     }
 
     public static class ScheduleSlot {
@@ -104,9 +142,13 @@ public class ReservationSchedule {
         private final String status;
         private final List<Reservation> reservations;
 
-        public ScheduleSlot(LocalDate date, LocalTime startTime,
-                            LocalTime endTime, String status,
-                            List<Reservation> reservations) {
+        public ScheduleSlot(
+                LocalDate date,
+                LocalTime startTime,
+                LocalTime endTime,
+                String status,
+                List<Reservation> reservations) {
+
             this.date = date;
             this.startTime = startTime;
             this.endTime = endTime;
@@ -130,10 +172,19 @@ public class ReservationSchedule {
             return status;
         }
 
+        public boolean isAvailable() {
+            return "Available".equals(status);
+        }
+
+        public boolean isReserved() {
+            return "Reserved".equals(status);
+        }
+
         public List<Reservation> getReservations() {
             return new ArrayList<>(reservations);
         }
 
+        // Includes reservations even when they don't align with slot boundaries.
         public String getReservationDetails() {
             if (reservations.isEmpty()) {
                 return "";
