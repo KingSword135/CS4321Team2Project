@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -48,17 +49,33 @@ public class ReservationListController implements Initializable {
     private TableColumn<Reservation, String> EndTimeColumn;
 
     @FXML
-    private TableColumn<Reservation, List<String>> FeaturesColumn;
+    private TableColumn<Reservation, String> FeaturesColumn;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         ReservationTable.setEditable(false);
-        ReservationBuildingColumn.setCellValueFactory(new PropertyValueFactory<>("spaceName"));
+        ReservationBuildingColumn.setCellValueFactory(cellData -> {Reservation r = cellData.getValue();
+        Space space = getSpaceById(r.getSpaceId());
+        if (space == null) {
+            return new SimpleStringProperty("Unknown");
+        }
+        return new SimpleStringProperty(space.getName());});
         DateColumn.setCellValueFactory(new PropertyValueFactory<>("Date"));
         StartTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
         EndTimeColumn.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-        FeaturesColumn.setCellValueFactory(new PropertyValueFactory<>("features"));
+        FeaturesColumn.setCellValueFactory(cellData -> {
+            Reservation r = cellData.getValue();
+            Space space = getSpaceById(r.getSpaceId());
+            List<String> features = space.getFeatures();
+            if (space == null || features == null || features.isEmpty()) {
+                return new SimpleStringProperty("");
+            }
+
+            return new SimpleStringProperty(String.join(", ", features));
+        });
+
+
         ReservationTable.setItems(reservations);
         reservations.setAll();
     }
@@ -94,6 +111,19 @@ public class ReservationListController implements Initializable {
     public void refreshTable() {
         ReservationTable.getItems().setAll(reservationRepository.getAllReservations());
         ReservationTable.refresh();
+    }
+
+    private Space getSpaceById(int spaceId) {
+        if (spaceRepository == null) {
+            throw new IllegalStateException("Space repository has not been set");
+        }
+        for (Space space : spaceRepository.getAllSpaces()) {
+            if (space.getId() == spaceId) {
+                return space;
+            }
+        }
+
+        return null;
     }
 }
 

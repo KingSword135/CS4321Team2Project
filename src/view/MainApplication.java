@@ -186,6 +186,34 @@ public class MainApplication extends Application {
         return pane;
     }
 
+    private void alert(String message) {
+        Alert errormessage = new Alert(Alert.AlertType.ERROR);
+        errormessage.setContentText(message);
+        errormessage.show();
+    }
+
+    private void getErrors(LocalDate date, LocalTime timestart, LocalTime timeend) {
+        if (date.isBefore(LocalDate.now())) {
+            alert("Date cannot be before today");
+            return;
+        }
+
+        if (timestart.isAfter(timeend)) {
+            alert("End time cannot be before the Start time");
+            return;
+        }
+
+        if (timestart.isBefore(LocalTime.of(8,0))) {
+            alert("Start time cannot be before 8:00 AM");
+            return;
+        }
+
+        if (timeend.isAfter(LocalTime.of(20,0))) {
+            alert("End time cannot be after 8:00 PM");
+            return;
+        }
+    }
+
     private class showFeaturesOfSpace implements EventHandler<ActionEvent> {
 
         @Override
@@ -198,11 +226,16 @@ public class MainApplication extends Application {
 
         @Override
         public void handle(ActionEvent actionEvent) {
+            LocalDate date = datePicker.getValue();
             String start_time[] = startingTime.getText().split(":");
             String end_time[] = endingTime.getText().split(":");
+
             LocalTime timestart = LocalTime.of(Integer.parseInt(start_time[0]),Integer.parseInt(start_time[1]));
             LocalTime timeend = LocalTime.of(Integer.parseInt(end_time[0]),Integer.parseInt(end_time[1]));
-            reservationManager.createReservation(controller1.getSelectedSpace().getId(),datePicker.getValue(),timestart,timeend);
+
+            getErrors(date,timestart,timeend);
+
+            reservationManager.createReservation(controller1.getSelectedSpace().getId(),date,timestart,timeend);
             ReservationJSONReadWriter rs = new ReservationJSONReadWriter();
             rs.WriteToFile(reservationManager.getReservations());
             reservationRepository = new InMemoryReservationRepository(reservationManager.getReservations());
