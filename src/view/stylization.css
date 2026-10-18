@@ -2,12 +2,17 @@
     -fx-background-color: #b8f9ff;
 }
 
-.topHbox {
-    -fx-background-color: #b8f9ff;
+#topHbox {
+    -fx-background-color: #f85151;
+    -fx-text-color: #ffffff;
+}
+
+#bottomHbox {
+    -fx-background-color: #ffa6bc;
 }
 
 .pane {
     -fx-background-color: #21dd6c;
-    -fx-border-color: black;
-    -fx-border-width: 1;
+    -fx-border-color: #ffffff;
+    -fx-border-width: 2;
 }

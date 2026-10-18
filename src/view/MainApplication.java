@@ -88,11 +88,12 @@ public class MainApplication extends Application {
         topHbox.setPrefHeight(80);
         topHbox.getChildren().add(label);
         topHbox.getChildren().add(label3);
+        topHbox.setId("topHbox");
+        topHbox.getStyleClass().add ("topHbox");
         spaceFeatures.setAlignment(Pos.CENTER);
         spaceFeatures.setEditable(false);
         spaceFeatures.setPrefWidth(400);
         topHbox.getChildren().add(spaceFeatures);
-        topHbox.getStyleClass().add ("topHbox");
 //        Image img = new Image("src/view/valdosta-state-university-logo-freelogovectors.net_.png");
 //        ImageView ImageView = new ImageView();
 //        ImageView.setImage(img);
@@ -160,6 +161,7 @@ public class MainApplication extends Application {
 
     private Pane buildCentralPane() {
         VBox pane = new VBox(10);
+        pane.setPrefHeight(400);
         pane.getChildren().add(buildDetails1Pane());
         pane.getChildren().add(buildDetails2Pane());
         pane.getChildren().add(buildDetails3Pane());
@@ -183,6 +185,11 @@ public class MainApplication extends Application {
 
     private HBox buildBottomPane() {
         HBox pane = new HBox();
+        pane.setPrefWidth(1280);
+        pane.setId("bottomHbox");
+        pane.getStyleClass().add("bottomHbox");
+        Label blank = new Label();
+        pane.getChildren().add(blank);
         return pane;
     }
 
