@@ -50,6 +50,8 @@ public class SpaceListController implements Initializable {
 //            }
 //        });
 
+
+
     }
 
     public void setSpaceRepository(SpaceRepository spaceRepository) {
@@ -69,5 +71,10 @@ public class SpaceListController implements Initializable {
 
     public SpaceRepository getSpaceRepository() {
         return spaceRepository;
+    }
+
+    public void refreshTable() {
+        SpaceTable.getItems().setAll(spaceRepository.getAllSpaces());
+        SpaceTable.refresh();
     }
 }

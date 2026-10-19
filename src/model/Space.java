@@ -66,14 +66,12 @@ public class Space {
     }
 
     public String spaceDetails() {
-        String msg = "Name: " + getName() +
-                ", Building: " + getBuilding() +
-                ", Capacity: " + getCapacity();
+        String msg = "";
         if (features != null && !features.isEmpty()) {
-            msg += ", Features: " + String.join(", ", features);
+            msg += "Name: " + getName() + " Building: " + getBuilding() +  " Capacity: " + getCapacity() + ", Features: " + String.join(", ", features);
         }
         else {
-            msg += ", No features available";
+            msg += "No features available";
         }
         return msg;
     }

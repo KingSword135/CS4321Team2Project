@@ -11,6 +11,9 @@
             fx:controller="controller.ReservationListController"
             prefHeight="400.0" prefWidth="400.0">
     <TableView fx:id="ReservationTable" VBox.vgrow="NEVER" editable="false">
+        <placeholder>
+            <Label text="No reservations exist"></Label>
+        </placeholder>
             <columns>
                 <TableColumn fx:id="ReservationBuildingColumn" text="Name" prefWidth="80"></TableColumn>
                 <TableColumn fx:id="DateColumn" text="Date" prefWidth="80"></TableColumn >

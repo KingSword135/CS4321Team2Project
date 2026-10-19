@@ -1,17 +1,14 @@
 package view;
 
 import controller.ReservationListController;
+import controller.SpaceFilterController;
 import controller.SpaceListController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import model.Reservation;
 import model.ReservationManager;
 import model.Space;
@@ -19,7 +16,6 @@ import model.Space;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
 import persistence.*;
@@ -35,32 +31,42 @@ public class MainApplication extends Application {
     ReservationRepository reservationRepository;
     ReservationManager reservationManager = new ReservationManager();
 
+    //Load in data...
     DataLoader loader = new DataLoader();
     FXMLLoader fxmlLoader1 = new FXMLLoader();
     FXMLLoader fxmlLoader2 = new FXMLLoader();
+
+    //Necessary controllers
     SpaceListController controller1;
     ReservationListController controller2;
 
-    Label label = new Label("Valdosta Space & Reservation Application");
+    Label label1 = new Label("Valdosta Space & Reservation Application");
     Label label2 = new Label("Spaces");
     Label label3 = new Label("Space Features: ");
+
+    //Buttons
     Button viewDetails = new Button("View Details");
     Button filterCapacities = new Button("Filter Capacities");
-    TextField capacity = new TextField();
     Button filterFeatures = new Button("Filter Features");
+
+    //TextFields
+    TextField capacityTextField = new TextField();
     TextField features = new TextField();
     TextField spaceFeatures = new TextField();
-    DatePicker datePicker = new DatePicker();
     TextField startingTime = new TextField();
     TextField endingTime = new TextField();
+
+    DatePicker datePicker = new DatePicker();
 
     public void start(Stage stage) throws Exception {
         try {
             stage.setTitle("Space/Reservation Application");
             Pane root = buildGUI();
-            Scene scene = new Scene(root, 1280, 800);
+            Scene scene = new Scene(root, 1280, 500);
             scene.getStylesheets().add(getClass().getResource("stylization.css").toExternalForm());
             stage.setScene(scene);
+
+
             stage.show();
         }
         catch (Exception e) {
@@ -86,14 +92,19 @@ public class MainApplication extends Application {
     private HBox buildTopPane() {
         HBox topHbox = new HBox(20);
         topHbox.setPrefHeight(80);
-        topHbox.getChildren().add(label);
+        topHbox.getChildren().add(label1);
+        label1.getStyleClass().add ("label1");
+        label1.setPadding(new Insets(10,0,0,0))    ;
+        label3.getStyleClass().add ("label1");
+        label3.setPadding(new Insets(10,0,0,0))    ;
         topHbox.getChildren().add(label3);
         topHbox.setId("topHbox");
-        topHbox.getStyleClass().add ("topHbox");
+//        topHbox.getStyleClass().add ("topHbox");
         spaceFeatures.setAlignment(Pos.CENTER);
         spaceFeatures.setEditable(false);
         spaceFeatures.setPrefWidth(400);
         topHbox.getChildren().add(spaceFeatures);
+        topHbox.setMargin(spaceFeatures, new Insets(10, 10, 10, 10));
 //        Image img = new Image("src/view/valdosta-state-university-logo-freelogovectors.net_.png");
 //        ImageView ImageView = new ImageView();
 //        ImageView.setImage(img);
@@ -111,6 +122,7 @@ public class MainApplication extends Application {
         controller1 = fxmlLoader1.getController();
         controller1.setSpaceRepository(spaceRepository);
         controller1.loadSpaces();
+        pane1.getStyleClass().add("tableview");
         return pane1;
     }
 
@@ -118,10 +130,14 @@ public class MainApplication extends Application {
         HBox pane = new HBox(10);
         pane.setPadding(new Insets(10,10,10,10));
         viewDetails.setOnAction(new showFeaturesOfSpace());
+        capacityTextField.setPrefWidth(40);
         pane.getChildren().add(viewDetails);
         pane.getChildren().add(filterCapacities);
-        pane.getChildren().add(capacity);
-
+        filterCapacities.setOnAction(new filterByCapacity());
+        pane.getChildren().add(capacityTextField);
+        Button resetCapacity = new Button("Reset");
+        resetCapacity.setOnAction(new resetCapacityTable());
+        pane.getChildren().add(resetCapacity);
         return pane;
     }
 
@@ -149,8 +165,10 @@ public class MainApplication extends Application {
         HBox pane = new HBox(10);
         Button buildReservation = new Button("Build Reservation");
         Button deleteReservation = new Button("Delete Reservation");
+        Button modifyReservation = new Button("Modify Reservation");
         pane.getChildren().add(buildReservation);
         pane.getChildren().add(deleteReservation);
+        pane.getChildren().add(modifyReservation);
         buildReservation.setAlignment(Pos.CENTER);
         buildReservation.setOnAction(new buildReservation());
         deleteReservation.setOnAction(new deleteReservation());
@@ -161,7 +179,7 @@ public class MainApplication extends Application {
 
     private Pane buildCentralPane() {
         VBox pane = new VBox(10);
-        pane.setPrefHeight(400);
+        pane.setMaxHeight(400);
         pane.getChildren().add(buildDetails1Pane());
         pane.getChildren().add(buildDetails2Pane());
         pane.getChildren().add(buildDetails3Pane());
@@ -219,13 +237,22 @@ public class MainApplication extends Application {
             alert("End time cannot be after 8:00 PM");
             return;
         }
+        if (timeend.toSecondOfDay() / 60 - timestart.toSecondOfDay() / 60 > 120) {
+            alert("Reservation cannot be longer than 2 hours");
+            return;
+        }
     }
 
     private class showFeaturesOfSpace implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent actionEvent) {
-            spaceFeatures.setText(controller1.getSelectedSpace().spaceDetails());
+            if (controller1.getSelectedSpace() != null) {
+                spaceFeatures.setText(controller1.getSelectedSpace().spaceDetails());
+            }
+            else {
+                spaceFeatures.setText("No space selected");
+            }
         }
     }
 
@@ -266,6 +293,35 @@ public class MainApplication extends Application {
             System.out.println("Reservation deleted");
         }
     }
+
+    private class filterByCapacity implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            SpaceFilterController spaceFilterController = new SpaceFilterController(spaceRepository);
+            String capacity = capacityTextField.getText();
+            List<Space> filteredSpaces = spaceFilterController.filterByMinCapacity(capacity);
+            capacityTextField.setText("");
+            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
+            controller1.setSpaceRepository(copiedSpaceRepository);
+            controller1.refreshTable();
+            System.out.println("Filtered spaces: " + filteredSpaces.size());
+        }
+    }
+
+    private class resetCapacityTable implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            controller1.setSpaceRepository(spaceRepository);
+            controller1.refreshTable();
+            System.out.println("Space table reset");
+        }
+    }
+
+//    private class modifyReservationInTable implements EventHandler<ActionEvent> {
+//
+//    }
 
     public static void main(String[] args) {
         Application.launch(args);
