@@ -4,7 +4,23 @@
 
 #topHbox {
     -fx-background-color: #f85151;
-    -fx-text-color: #ffffff;
+    -fx-color: #ffffff;
+    -fx-bottom-margin: 10px;
+    -fx-border-color: #ffffff;
+    -fx-border-width: 1;
+}
+
+.label1 {
+    -fx-text-background-color: #ffffff;
+    -fx-font-family: "Times New Roman";
+    -fx-font-size: 16px;
+}
+
+.button {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Times New Roman";
+    -fx-border-color: black;
+    -fx-border-width: 1;
 }
 
 #bottomHbox {
@@ -16,3 +32,15 @@
     -fx-border-color: #ffffff;
     -fx-border-width: 2;
 }
+
+.tableview {
+    -fx-control-inner-background: #37fb9a;
+    -fx-control-inner-background-alt: #319c36;
+    -fx-selection-bar: #2df6e5;
+    -fx-selection-bar-non-focused: #2df6e5;
+    -fx-selection-bar-text: #ffffff;
+}
+
+/*.table-row-cell:selected  {*/
+/*    -fx-background-color: green;*/
+/*}*/

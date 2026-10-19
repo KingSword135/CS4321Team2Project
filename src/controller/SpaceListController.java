@@ -50,6 +50,8 @@ public class SpaceListController implements Initializable {
 //            }
 //        });
 
+
+
     }
 
     public void setSpaceRepository(SpaceRepository spaceRepository) {
