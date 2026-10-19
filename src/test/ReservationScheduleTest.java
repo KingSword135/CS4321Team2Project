@@ -1,3 +1,5 @@
+package test;
+
 import model.ReservationManager;
 import model.ReservationSchedule;
 import model.ReservationSchedule.ScheduleSlot;
