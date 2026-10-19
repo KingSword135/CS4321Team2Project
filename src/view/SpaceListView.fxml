@@ -12,6 +12,9 @@
             prefHeight="400.0" prefWidth="400">
 
     <TableView fx:id="SpaceTable" VBox.vgrow="NEVER" editable="false" layoutX="50" layoutY="50" >
+        <placeholder>
+            <Label text="No spaces exist"></Label>
+        </placeholder>
         <columns>
             <TableColumn fx:id="NameColumn" text="Name" prefWidth="133"> </TableColumn>
             <TableColumn fx:id="BuildingColumn" text="Building" prefWidth="134"> </TableColumn>

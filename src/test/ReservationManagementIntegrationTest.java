@@ -1,9 +1,6 @@
 package test;
 
-import model.Reservation;
-import model.ReservationManager;
-import model.ReservationUserStoriesService;
-import model.Space;
+import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReservationManagementIntegrationTest {
 
     private ReservationManager manager;
-    private ReservationUserStoriesService service;
+    private ReservationService service;
 
     private final LocalDate date = LocalDate.of(2026, 11, 2);
 
@@ -31,7 +28,7 @@ class ReservationManagementIntegrationTest {
                         List.of("Whiteboard", "Projector"))
         );
 
-        service = new ReservationUserStoriesService(manager, spaces);
+        service = new ReservationService(manager, spaces);
     }
 
     // US-10, AT: Canceling a reservation removes it from the list.
@@ -128,7 +125,7 @@ class ReservationManagementIntegrationTest {
     // US-12, AT: Suggested times are returned in chronological order.
     @Test
     void suggestedTimesAreChronological() {
-        List<ReservationUserStoriesService.TimeSuggestion> suggestions =
+        List<ReservationService.TimeSuggestion> suggestions =
                 service.suggestTimes(1, date, 60);
 
         assertFalse(suggestions.isEmpty());
@@ -147,10 +144,10 @@ class ReservationManagementIntegrationTest {
         manager.createReservation(
                 1, date, LocalTime.of(9, 0), LocalTime.of(10, 0));
 
-        List<ReservationUserStoriesService.TimeSuggestion> suggestions =
+        List<ReservationService.TimeSuggestion> suggestions =
                 service.suggestTimes(1, date, 60);
 
-        for (ReservationUserStoriesService.TimeSuggestion suggestion
+        for (ReservationService.TimeSuggestion suggestion
                 : suggestions) {
             boolean overlaps = suggestion.getStartTime()
                     .isBefore(LocalTime.of(10, 0))

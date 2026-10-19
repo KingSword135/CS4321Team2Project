@@ -11,7 +11,7 @@ public class ReservationService {
     private final ReservationManager manager;
     private final List<Space> spaces;
 
-    public ReservationUserStoriesService(
+    public ReservationService(
             ReservationManager manager, List<Space> spaces) {
         if (manager == null || spaces == null) {
             throw new IllegalArgumentException(

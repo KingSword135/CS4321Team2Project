@@ -1,5 +1,9 @@
-package model;
+package test;
 
+import model.Reservation;
+import model.ReservationManager;
+import model.ReservationService;
+import model.Space;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReservationServiceTest {
 
     private ReservationManager manager;
-    private ReservationUserStoriesService service;
+    private ReservationService service;
     private LocalDate date;
 
     @BeforeEach
@@ -27,7 +31,7 @@ class ReservationServiceTest {
                         List.of("Projector"))
         );
 
-        service = new ReservationUserStoriesService(manager, spaces);
+        service = new ReservationService(manager, spaces);
     }
 
     // US-9: View reservations
@@ -150,7 +154,7 @@ class ReservationServiceTest {
 
     @Test
     void suggestsAvailableTimesInChronologicalOrder() {
-        List<ReservationUserStoriesService.TimeSuggestion> suggestions =
+        List<ReservationService.TimeSuggestion> suggestions =
                 service.suggestTimes(1, date, 60);
 
         assertFalse(suggestions.isEmpty());
@@ -171,10 +175,10 @@ class ReservationServiceTest {
                 1, date,
                 LocalTime.of(9, 0), LocalTime.of(10, 0));
 
-        List<ReservationUserStoriesService.TimeSuggestion> suggestions =
+        List<ReservationService.TimeSuggestion> suggestions =
                 service.suggestTimes(1, date, 60);
 
-        for (ReservationUserStoriesService.TimeSuggestion suggestion
+        for (ReservationService.TimeSuggestion suggestion
                 : suggestions) {
             assertFalse(
                     suggestion.getStartTime().isBefore(LocalTime.of(10, 10))
@@ -184,10 +188,10 @@ class ReservationServiceTest {
 
     @Test
     void suggestionsStayWithinBusinessHours() {
-        List<ReservationUserStoriesService.TimeSuggestion> suggestions =
+        List<ReservationService.TimeSuggestion> suggestions =
                 service.suggestTimes(1, date, 120);
 
-        for (ReservationUserStoriesService.TimeSuggestion suggestion
+        for (ReservationService.TimeSuggestion suggestion
                 : suggestions) {
             assertFalse(suggestion.getStartTime()
                     .isBefore(LocalTime.of(8, 0)));

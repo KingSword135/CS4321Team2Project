@@ -145,6 +145,17 @@ public class Space {
         return Objects.hash(id);
     }
 
+    public String spaceDetails() {
+        String msg = "";
+        if (features != null && !features.isEmpty()) {
+            msg += "Name: " + getName() + " Building: " + getBuilding() +  " Capacity: " + getCapacity() + ", Features: " + String.join(", ", features);
+        }
+        else {
+            msg += "No features available";
+        }
+        return msg;
+    }
+
     @Override
     public String toString() {
         return "ID: " + id
