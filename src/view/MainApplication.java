@@ -172,6 +172,7 @@ public class MainApplication extends Application {
         buildReservation.setAlignment(Pos.CENTER);
         buildReservation.setOnAction(new buildReservation());
         deleteReservation.setOnAction(new deleteReservation());
+        modifyReservation.setOnAction(new modifyReservationInTable());
         pane.setAlignment(Pos.CENTER);
         buildReservation.setOnAction(new buildReservation());
         return pane;
@@ -198,6 +199,7 @@ public class MainApplication extends Application {
         controller2.setSpaceRepository(spaceRepository);
         controller2.setReservationRepository(reservationRepository);
         controller2.loadReservations();
+        pane1.getStyleClass().add("tableview");
         return pane1;
     }
 
@@ -300,6 +302,11 @@ public class MainApplication extends Application {
         public void handle(ActionEvent actionEvent) {
             SpaceFilterController spaceFilterController = new SpaceFilterController(spaceRepository);
             String capacity = capacityTextField.getText();
+            if (Integer.parseInt(capacity) <= 0 || !capacity.matches("\\d+")) {
+                alert("Capacity must be greater than 0 or a number");
+                capacityTextField.setText("");
+                return;
+            }
             List<Space> filteredSpaces = spaceFilterController.filterByMinCapacity(capacity);
             capacityTextField.setText("");
             SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
@@ -319,9 +326,25 @@ public class MainApplication extends Application {
         }
     }
 
-//    private class modifyReservationInTable implements EventHandler<ActionEvent> {
-//
-//    }
+    private class modifyReservationInTable implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            Space space1 = controller1.getSelectedSpace();
+            Reservation reservation1 = controller2.getSelectedReservation();
+            int id = reservation1.getId();
+            int spaceId = space1.getId();
+            String start_time[] = startingTime.getText().split(":");
+            String end_time[] = endingTime.getText().split(":");
+            LocalTime startTime = LocalTime.of(Integer.parseInt(start_time[0]), Integer.parseInt(start_time[1]));
+            LocalTime endTime = LocalTime.of(Integer.parseInt(end_time[0]), Integer.parseInt(end_time[1]));
+            reservationManager.modifyReservation(id, spaceId, datePicker.getValue(), startTime, endTime);
+            if (startTime.isAfter(endTime)) {
+                alert("New reservation start time is after end time");
+            }
+            controller2.refreshTable();
+        }
+    }
 
     public static void main(String[] args) {
         Application.launch(args);
