@@ -1,0 +1,262 @@
+
+package controller;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import model.Reservation;
+import model.ReservationManager;
+
+import java.net.URL;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
+public class ReservationScheduleController implements Initializable {
+
+    @FXML private TextField spaceIdField;
+    @FXML private DatePicker startDatePicker;
+    @FXML private DatePicker endDatePicker;
+
+    @FXML private TableView<ScheduleSlot> scheduleTable;
+    @FXML private TableColumn<ScheduleSlot, String> dateColumn;
+    @FXML private TableColumn<ScheduleSlot, String> startColumn;
+    @FXML private TableColumn<ScheduleSlot, String> endColumn;
+    @FXML private TableColumn<ScheduleSlot, String> statusColumn;
+    @FXML private TableColumn<ScheduleSlot, String> reservationColumn;
+
+    private ReservationManager reservationManager =
+            new ReservationManager();
+
+    private final ObservableList<ScheduleSlot> slots =
+            FXCollections.observableArrayList();
+
+    private static final LocalTime OPEN = LocalTime.of(8, 0);
+    private static final LocalTime CLOSE = LocalTime.of(20, 0);
+
+    private static final DateTimeFormatter TIME_FORMAT =
+            DateTimeFormatter.ofPattern("h:mm a");
+
+    @Override
+    public void initialize(URL url, ResourceBundle resources) {
+        dateColumn.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getDate()));
+
+        startColumn.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getStart()));
+
+        endColumn.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getEnd()));
+
+        statusColumn.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getStatus()));
+
+        reservationColumn.setCellValueFactory(
+                data -> new SimpleStringProperty(
+                        data.getValue().getReservationDetails()));
+
+        // US-8: Color reserved and available slots differently.
+        statusColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+
+                if (empty || status == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(status);
+
+                    if (status.equals("Reserved")) {
+                        setStyle(
+                                "-fx-background-color: #ffcdd2;" +
+                                "-fx-text-fill: #b71c1c;"
+                        );
+                    } else {
+                        setStyle(
+                                "-fx-background-color: #c8e6c9;" +
+                                "-fx-text-fill: #1b5e20;"
+                        );
+                    }
+                }
+            }
+        });
+
+        scheduleTable.setItems(slots);
+        startDatePicker.setValue(LocalDate.now());
+        endDatePicker.setValue(LocalDate.now());
+    }
+
+    // Use the application's existing manager so reservations are visible.
+    public void setReservationManager(ReservationManager manager) {
+        this.reservationManager = manager;
+    }
+
+    // US-6: View one space on one day.
+    @FXML
+    private void viewOneDay() {
+        if (startDatePicker.getValue() == null) {
+            showError("Please select a date.");
+            return;
+        }
+
+        endDatePicker.setValue(startDatePicker.getValue());
+        loadSchedule(true);
+    }
+
+    // US-7: View one space across an inclusive date range.
+    @FXML
+    private void viewDateRange() {
+        loadSchedule(false);
+    }
+
+    private void loadSchedule(boolean oneDay) {
+        slots.clear();
+
+        int spaceId;
+        try {
+            spaceId = Integer.parseInt(spaceIdField.getText().trim());
+        } catch (NumberFormatException exception) {
+            showError("Enter a valid numeric space ID.");
+            return;
+        }
+
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+
+        if (startDate == null || endDate == null) {
+            showError("Please select the required date or dates.");
+            return;
+        }
+
+        if (endDate.isBefore(startDate)) {
+            showError("The end date cannot be before the start date.");
+            return;
+        }
+
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+
+        // Inclusive range: a maximum of 7 calendar days.
+        if (!oneDay && daysBetween > 6) {
+            showError("The date range cannot exceed 7 days.");
+            return;
+        }
+
+        boolean anyReservations = false;
+
+        for (LocalDate day = startDate;
+             !day.isAfter(endDate);
+             day = day.plusDays(1)) {
+
+            Date sqlDate = Date.valueOf(day);
+            List<Reservation> dailyReservations = new ArrayList<>();
+
+            for (Reservation reservation :
+                    reservationManager.getReservations()) {
+
+                if (reservation.getSpaceId() == spaceId
+                        && reservation.getDate() != null
+                        && reservation.getDate().equals(sqlDate)) {
+                    dailyReservations.add(reservation);
+                    anyReservations = true;
+                }
+            }
+
+            // 24 half-hour slots per day, from 8:00 AM to 8:00 PM.
+            for (LocalTime time = OPEN;
+                 time.isBefore(CLOSE);
+                 time = time.plusMinutes(30)) {
+
+                LocalTime slotEnd = time.plusMinutes(30);
+                List<String> overlappingReservations = new ArrayList<>();
+
+                for (Reservation reservation : dailyReservations) {
+                    // Any overlap marks the slot as reserved.
+                    if (time.isBefore(reservation.getEndTime())
+                            && slotEnd.isAfter(reservation.getStartTime())) {
+
+                        String exactTime =
+                                reservation.getStartTime().format(TIME_FORMAT)
+                                + " - "
+                                + reservation.getEndTime().format(TIME_FORMAT);
+
+                        if (!overlappingReservations.contains(exactTime)) {
+                            overlappingReservations.add(exactTime);
+                        }
+                    }
+                }
+
+                boolean reserved = !overlappingReservations.isEmpty();
+
+                slots.add(new ScheduleSlot(
+                        day.toString(),
+                        time.format(TIME_FORMAT),
+                        slotEnd.format(TIME_FORMAT),
+                        reserved ? "Reserved" : "Available",
+                        String.join(", ", overlappingReservations)
+                ));
+            }
+        }
+
+        if (oneDay && !anyReservations) {
+            showInformation(
+                    "No reservations exist for space " + spaceId
+                    + " on " + startDate + ". All time slots are available."
+            );
+        }
+    }
+
+    private void showError(String message) {
+        new Alert(Alert.AlertType.ERROR, message).showAndWait();
+    }
+
+    private void showInformation(String message) {
+        new Alert(Alert.AlertType.INFORMATION, message).showAndWait();
+    }
+
+    public static class ScheduleSlot {
+        private final String date;
+        private final String start;
+        private final String end;
+        private final String status;
+        private final String reservationDetails;
+
+        public ScheduleSlot(String date, String start, String end,
+                            String status, String reservationDetails) {
+            this.date = date;
+            this.start = start;
+            this.end = end;
+            this.status = status;
+            this.reservationDetails = reservationDetails;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public String getStart() {
+            return start;
+        }
+
+        public String getEnd() {
+            return end;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public String getReservationDetails() {
+            return reservationDetails;
+        }
+    }
+}

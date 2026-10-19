@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.ReservationScheduleController"
+      spacing="12"
+      prefWidth="900"
+      prefHeight="550"
+      style="-fx-padding: 20;">
+
+    <Label text="Reservation Schedule"
+           style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Space ID:"/>
+        <TextField fx:id="spaceIdField"
+                   promptText="Enter space ID"
+                   prefWidth="120"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Start Date:"/>
+        <DatePicker fx:id="startDatePicker"/>
+        <Label text="End Date:"/>
+        <DatePicker fx:id="endDatePicker"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Button text="View One Day" onAction="#viewOneDay"/>
+        <Button text="View Date Range" onAction="#viewDateRange"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Label text="Reserved"
+               style="-fx-background-color: #ffcdd2; -fx-padding: 5;"/>
+        <Label text="Available"
+               style="-fx-background-color: #c8e6c9; -fx-padding: 5;"/>
+    </HBox>
+
+    <TableView fx:id="scheduleTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="dateColumn"
+                         text="Date" prefWidth="100"/>
+            <TableColumn fx:id="startColumn"
+                         text="Start" prefWidth="90"/>
+            <TableColumn fx:id="endColumn"
+                         text="End" prefWidth="90"/>
+            <TableColumn fx:id="statusColumn"
+                         text="Status" prefWidth="100"/>
+            <TableColumn fx:id="reservationColumn"
+                         text="Exact Reservation Time"
+                         prefWidth="220"/>
+        </columns>
+    </TableView>
+</VBox>
