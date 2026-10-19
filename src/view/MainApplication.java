@@ -50,7 +50,7 @@ public class MainApplication extends Application {
     Button filterCapacities = new Button("Filter Capacities");
     TextField capacity = new TextField();
     Button filterFeatures = new Button("Filter Features");
-    TextField features = new TextField();
+    TextField featuresList = new TextField();
     TextField spaceFeatures = new TextField();
     DatePicker datePicker = new DatePicker();
     TextField startingTime = new TextField();
@@ -133,7 +133,7 @@ public class MainApplication extends Application {
         pane.setPadding(new Insets(10,10,10,10));
         pane.getChildren().add(filterFeatures);
         filterFeatures.setOnAction(new filterFeatures());
-        pane.getChildren().add(features);
+        pane.getChildren().add(featuresList);
         return pane;
     }
     private Pane buildDetails3Pane() {
@@ -240,11 +240,11 @@ public class MainApplication extends Application {
         public void handle(ActionEvent actionEvent) {
             List<String> features = new ArrayList<>();
             SpaceFilterController controller3 = new SpaceFilterController(spaceRepository);
-            String featurelist = spaceFeatures.getText();
-//            for (int i = 0; i < featurelist.length; ++i) {
-//                features.add(featurelist[i]);
-//            }
-            features.add(featurelist);
+            String[] featurelist = featuresList.getText().split(",");
+            for (int i = 0; i < featurelist.length; ++i) {
+                features.add(featurelist[i]);
+            }
+
             List<Space> filteredSpaces = controller3.filterByFeatures(features);
             SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
             controller1.setSpaceRepository(copiedSpaceRepository);
