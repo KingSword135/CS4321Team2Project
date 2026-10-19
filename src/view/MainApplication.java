@@ -3,6 +3,7 @@ package view;
 import controller.ReservationListController;
 import controller.SpaceFilterController;
 import controller.SpaceListController;
+import controller.SpaceFilterController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +22,7 @@ import javafx.scene.control.*;
 import persistence.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import java.time.*;
@@ -132,6 +134,7 @@ public class MainApplication extends Application {
         viewDetails.setOnAction(new showFeaturesOfSpace());
         capacityTextField.setPrefWidth(40);
         pane.getChildren().add(viewDetails);
+        filterCapacities.setOnAction(new filterByCapacity());
         pane.getChildren().add(filterCapacities);
         filterCapacities.setOnAction(new filterByCapacity());
         pane.getChildren().add(capacityTextField);
@@ -145,7 +148,8 @@ public class MainApplication extends Application {
         HBox pane = new HBox(10);
         pane.setPadding(new Insets(10,10,10,10));
         pane.getChildren().add(filterFeatures);
-        pane.getChildren().add(features);
+        filterFeatures.setOnAction(new filterFeatures());
+        pane.getChildren().add(featuresList);
         return pane;
     }
     private Pane buildDetails3Pane() {
@@ -174,7 +178,7 @@ public class MainApplication extends Application {
         deleteReservation.setOnAction(new deleteReservation());
         modifyReservation.setOnAction(new modifyReservationInTable());
         pane.setAlignment(Pos.CENTER);
-        buildReservation.setOnAction(new buildReservation());
+//        buildReservation.setOnAction(new buildReservation());
         return pane;
     }
 
@@ -256,6 +260,42 @@ public class MainApplication extends Application {
                 spaceFeatures.setText("No space selected");
             }
         }
+    }
+
+    private class filterFeatures implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            List<String> features = new ArrayList<>();
+            SpaceFilterController controller3 = new SpaceFilterController(spaceRepository);
+            String[] featurelist = featuresList.getText().split(",");
+            for (int i = 0; i < featurelist.length; ++i) {
+                features.add(featurelist[i]);
+            }
+
+            List<Space> filteredSpaces = controller3.filterByFeatures(features);
+            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
+            controller1.setSpaceRepository(copiedSpaceRepository);
+            controller1.refreshTable();
+        }
+    }
+
+    private class filterByCapacity implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            List<Space> filteredSpaces ;
+            SpaceFilterController controller3 = new SpaceFilterController(spaceRepository);
+            String spaceCapcity = capacity.getText();
+            if (Integer.parseInt(spaceCapcity) <= 0) {
+                return;
+            }
+            filteredSpaces = controller3.filterByMinCapacity(spaceCapcity);
+            capacity.setText("");
+            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
+            controller1.setSpaceRepository(copiedSpaceRepository);
+            controller1.refreshTable();
+
     }
 
     private class buildReservation implements EventHandler<ActionEvent> {
@@ -348,6 +388,7 @@ public class MainApplication extends Application {
 
     public static void main(String[] args) {
         Application.launch(args);
+    }
     }
 
 }

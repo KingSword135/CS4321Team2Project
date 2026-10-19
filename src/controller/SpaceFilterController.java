@@ -4,6 +4,7 @@ import model.Space;
 import persistence.SpaceRepository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -72,7 +73,7 @@ public class SpaceFilterController {
 
         List<Space> matches = new ArrayList<>();
         for (Space space : repository.getAllSpaces()) {
-            if (normalize(space.getFeatures()).containsAll(required)) {
+            if (new HashSet<>(normalize(space.getFeatures())).containsAll(required)) {
                 matches.add(space);
             }
         }
