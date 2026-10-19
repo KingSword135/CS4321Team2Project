@@ -26,6 +26,7 @@ import javafx.scene.control.*;
 import persistence.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import java.time.*;
@@ -131,6 +132,7 @@ public class MainApplication extends Application {
         HBox pane = new HBox(10);
         pane.setPadding(new Insets(10,10,10,10));
         pane.getChildren().add(filterFeatures);
+        filterFeatures.setOnAction(new filterFeatures());
         pane.getChildren().add(features);
         return pane;
     }
@@ -231,6 +233,25 @@ public class MainApplication extends Application {
             spaceFeatures.setText(controller1.getSelectedSpace().spaceDetails());
         }
     }
+
+    private class filterFeatures implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            List<String> features = new ArrayList<>();
+            SpaceFilterController controller3 = new SpaceFilterController(spaceRepository);
+            String featurelist = spaceFeatures.getText();
+//            for (int i = 0; i < featurelist.length; ++i) {
+//                features.add(featurelist[i]);
+//            }
+            features.add(featurelist);
+            List<Space> filteredSpaces = controller3.filterByFeatures(features);
+            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
+            controller1.setSpaceRepository(copiedSpaceRepository);
+            controller1.refreshTable();
+        }
+    }
+
     private class filterByCapacity implements EventHandler<ActionEvent> {
 
         @Override
@@ -247,24 +268,6 @@ public class MainApplication extends Application {
             controller1.setSpaceRepository(copiedSpaceRepository);
             controller1.refreshTable();
 
-    }
-
-    private class filterByFeatures implements EventHandler<ActionEvent> {
-
-        @Override
-        public void handle(ActionEvent actionEvent) {
-            List<Space> filteredSpaces;
-            SpaceFilterController controller3 = new SpaceFilterController(spaceRepository);
-            List<String> spaceFeature = spaceFeatures.getText();
-//            if (Integer.parseInt(spaceCapcity) <= 0) {
-//                return;
-//            }
-            filteredSpaces = controller3.filterByFeatures(spaceFeature);
-            capacity.setText("");
-            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
-            controller1.setSpaceRepository(copiedSpaceRepository);
-            controller1.refreshTable();
-        }
     }
 
     private class buildReservation implements EventHandler<ActionEvent> {
