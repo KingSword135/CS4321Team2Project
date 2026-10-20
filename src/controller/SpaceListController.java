@@ -77,4 +77,9 @@ public class SpaceListController implements Initializable {
         SpaceTable.getItems().setAll(spaceRepository.getAllSpaces());
         SpaceTable.refresh();
     }
+
+    public void unsetSpace() {
+        SpaceTable.getSelectionModel().select(null);
+        SpaceTable.refresh();
+    }
 }

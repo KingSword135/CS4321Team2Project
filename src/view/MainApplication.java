@@ -21,6 +21,7 @@ import javafx.scene.control.*;
 import persistence.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import java.time.*;
@@ -51,7 +52,7 @@ public class MainApplication extends Application {
 
     //TextFields
     TextField capacityTextField = new TextField();
-    TextField features = new TextField();
+    TextField featuresList = new TextField();
     TextField spaceFeatures = new TextField();
     TextField startingTime = new TextField();
     TextField endingTime = new TextField();
@@ -132,6 +133,7 @@ public class MainApplication extends Application {
         viewDetails.setOnAction(new showFeaturesOfSpace());
         capacityTextField.setPrefWidth(40);
         pane.getChildren().add(viewDetails);
+        filterCapacities.setOnAction(new filterByCapacity());
         pane.getChildren().add(filterCapacities);
         filterCapacities.setOnAction(new filterByCapacity());
         pane.getChildren().add(capacityTextField);
@@ -145,7 +147,8 @@ public class MainApplication extends Application {
         HBox pane = new HBox(10);
         pane.setPadding(new Insets(10,10,10,10));
         pane.getChildren().add(filterFeatures);
-        pane.getChildren().add(features);
+        filterFeatures.setOnAction(new filterFeatures());
+        pane.getChildren().add(featuresList);
         return pane;
     }
     private Pane buildDetails3Pane() {
@@ -166,15 +169,18 @@ public class MainApplication extends Application {
         Button buildReservation = new Button("Build Reservation");
         Button deleteReservation = new Button("Delete Reservation");
         Button modifyReservation = new Button("Modify Reservation");
+        Button UnsetSpace = new Button("Unset Space");
         pane.getChildren().add(buildReservation);
         pane.getChildren().add(deleteReservation);
         pane.getChildren().add(modifyReservation);
+        pane.getChildren().add(UnsetSpace);
         buildReservation.setAlignment(Pos.CENTER);
         buildReservation.setOnAction(new buildReservation());
         deleteReservation.setOnAction(new deleteReservation());
         modifyReservation.setOnAction(new modifyReservationInTable());
+        UnsetSpace.setOnAction(new unsetSpace());
         pane.setAlignment(Pos.CENTER);
-        buildReservation.setOnAction(new buildReservation());
+//        buildReservation.setOnAction(new buildReservation());
         return pane;
     }
 
@@ -258,6 +264,34 @@ public class MainApplication extends Application {
         }
     }
 
+    private class resetCapacityTable implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            controller1.setSpaceRepository(spaceRepository);
+            controller1.refreshTable();
+            System.out.println("Space table reset");
+        }
+    }
+
+    private class filterFeatures implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            List<String> features = new ArrayList<>();
+            SpaceFilterController controller3 = new SpaceFilterController(spaceRepository);
+            String[] featurelist = featuresList.getText().split(",");
+            for (int i = 0; i < featurelist.length; ++i) {
+                features.add(featurelist[i]);
+            }
+
+            List<Space> filteredSpaces = controller3.filterByFeatures(features);
+            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
+            controller1.setSpaceRepository(copiedSpaceRepository);
+            controller1.refreshTable();
+        }
+    }
+
     private class buildReservation implements EventHandler<ActionEvent> {
 
         @Override
@@ -296,48 +330,25 @@ public class MainApplication extends Application {
         }
     }
 
-    private class filterByCapacity implements EventHandler<ActionEvent> {
-
-        @Override
-        public void handle(ActionEvent actionEvent) {
-            SpaceFilterController spaceFilterController = new SpaceFilterController(spaceRepository);
-            String capacity = capacityTextField.getText();
-            if (Integer.parseInt(capacity) <= 0 || !capacity.matches("\\d+")) {
-                alert("Capacity must be greater than 0 or a number");
-                capacityTextField.setText("");
-                return;
-            }
-            List<Space> filteredSpaces = spaceFilterController.filterByMinCapacity(capacity);
-            capacityTextField.setText("");
-            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
-            controller1.setSpaceRepository(copiedSpaceRepository);
-            controller1.refreshTable();
-            System.out.println("Filtered spaces: " + filteredSpaces.size());
-        }
-    }
-
-    private class resetCapacityTable implements EventHandler<ActionEvent> {
-
-        @Override
-        public void handle(ActionEvent actionEvent) {
-            controller1.setSpaceRepository(spaceRepository);
-            controller1.refreshTable();
-            System.out.println("Space table reset");
-        }
-    }
-
     private class modifyReservationInTable implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent actionEvent) {
             Space space1 = controller1.getSelectedSpace();
             Reservation reservation1 = controller2.getSelectedReservation();
-            int id = reservation1.getId();
-            int spaceId = space1.getId();
+
             String start_time[] = startingTime.getText().split(":");
             String end_time[] = endingTime.getText().split(":");
             LocalTime startTime = LocalTime.of(Integer.parseInt(start_time[0]), Integer.parseInt(start_time[1]));
             LocalTime endTime = LocalTime.of(Integer.parseInt(end_time[0]), Integer.parseInt(end_time[1]));
+            int id = reservation1.getId();
+            if (space1 == null) {
+                reservationManager.modifyReservation(id, datePicker.getValue(), startTime, endTime);
+                controller2.refreshTable();
+                return;
+            }
+            int spaceId = space1.getId();
+
             reservationManager.modifyReservation(id, spaceId, datePicker.getValue(), startTime, endTime);
             if (startTime.isAfter(endTime)) {
                 alert("New reservation start time is after end time");
@@ -346,8 +357,36 @@ public class MainApplication extends Application {
         }
     }
 
+    private class unsetSpace implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            controller1.unsetSpace();
+            controller1.refreshTable();
+        }
+    }
+
+    private class filterByCapacity implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            List<Space> filteredSpaces ;
+            SpaceFilterController controller3 = new SpaceFilterController(spaceRepository);
+            String spaceCapcity = capacityTextField.getText();
+            if (Integer.parseInt(spaceCapcity) <= 0) {
+                return;
+            }
+            filteredSpaces = controller3.filterByMinCapacity(spaceCapcity);
+            capacityTextField.setText("");
+            SpaceRepository copiedSpaceRepository = new InMemorySpaceRepository(filteredSpaces);
+            controller1.setSpaceRepository(copiedSpaceRepository);
+            controller1.refreshTable();
+
+    }
+
     public static void main(String[] args) {
         Application.launch(args);
+    }
     }
 
 }
